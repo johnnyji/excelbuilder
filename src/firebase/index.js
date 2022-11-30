@@ -19,6 +19,8 @@ import {
   addDoc
 } from "firebase/firestore";
 
+import { getStripePayments } from "@stripe/firestore-stripe-payments";
+
 import { v4 as uuidv4 } from "uuid";
 
 const firebaseConfig = {
@@ -35,6 +37,12 @@ const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);
 const db = getFirestore(app);
 const googleProvider = new GoogleAuthProvider();
+
+const stripePayments = getStripePayments(app, {
+  productsCollection: "stripeProducts",
+  customersCollection: "users"
+});
+
 const signInWithGoogle = async () => {
   try {
     const res = await signInWithPopup(auth, googleProvider);
@@ -119,11 +127,13 @@ const logout = () => {
 
 export {
   auth,
+  app,
   db,
   signInWithGoogle,
   logInWithEmailAndPassword,
   createGeneration,
   registerWithEmailAndPassword,
   sendPasswordReset,
+  stripePayments,
   logout
 };
