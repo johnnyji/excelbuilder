@@ -1,16 +1,15 @@
 import React from "react";
-import { useAuthState } from "react-firebase-hooks/auth";
 import { Navigate, useLocation } from "react-router-dom";
 
-import { auth } from "../firebase";
-
 import Login from "../components/login";
+
+import useCurrentUser from "../hooks/useCurrentUser";
 
 export const UserContext = React.createContext(null);
 
 export default function User({ children }) {
-  // TODO: STOPPED HERE -- The user returned by auth state is not actually in the user in our DB, need to also provide that as well
-  const [user, loading, error] = useAuthState(auth);
+  const [user, loading, error] = useCurrentUser();
+
   const location = useLocation();
 
   if (loading) {
