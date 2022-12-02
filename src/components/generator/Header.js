@@ -20,7 +20,7 @@ export default function Header() {
   return (
     <Alert severity="info">
       <AlertTitle>
-        {user.tier > 0 ? (
+        {user.subscriptionPlan !== "STARTER" ? (
           "Unlimited Credits"
         ) : (
           <Link to="/billing">{remainingCredits} credits left this month</Link>

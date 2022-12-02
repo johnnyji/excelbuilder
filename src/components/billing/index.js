@@ -15,14 +15,12 @@ import {
   Typography
 } from "@mui/material";
 
-import {
-  createCheckoutSession,
-  getProducts
-} from "@stripe/firestore-stripe-payments";
-
+import { createCheckoutSession } from "@stripe/firestore-stripe-payments";
 import { stripePayments } from "../../firebase";
 
 import { UserContext } from "../../contexts/User";
+
+import useStripeProducts from "../../hooks/useStripeProducts";
 
 import DashboardError from "../ui/DashboardError";
 import DashboardWrapper from "../ui/DashboardWrapper";
@@ -42,12 +40,10 @@ const styles = {
 const plans = {
   PREMIUM: {
     title: "Premium",
-    tier: 1,
     values: ["7 explains/builds per month"]
   },
   PREMIUM_Y: {
     title: "Premium (Yearly)",
-    tier: 2,
     values: ["7 explains/builds per month"]
   }
 };
@@ -55,14 +51,25 @@ const plans = {
 export default function Billing() {
   // TODO:
   //
-  // 1. Make sure cancel/success redirects notify a snackbar
-  // 2. Make sure error states are recognized on this page
+  // 1. So it turns out that checkout session creates a new active subscription every time, so instead we want to fetch the current user's subscriptions,
+  // and based on the status of their current subscription:
+  //  (https://github.com/stripe/stripe-firebase-extensions/blob/next/firestore-stripe-web-sdk/markdown/firestore-stripe-payments.subscriptionstatus.md)
+  // we can will need to render a button with a different action. We'll likely want to load the current user's subscription along with the user itself
+  //
+  // 2. We'll need to edit the "RemainingCredits" context to assess the user's subscription, and based on that subscription, we will be able to
+  // determine if the user has -1 remaining credits, if they do, it means they're unlimited credits
+  //
+  // 3. Delete the stripe users created in `users`
+  //
+  // 4. Create an option for the user to manage their existing subscription
   const user = useContext(UserContext);
   const { enqueueSnackbar } = useSnackbar();
-  const [productsLoading, setProductsLoading] = useState(true);
-  const [productsError, setProductsError] = useState(null);
+  const {
+    isLoading: productsLoading,
+    isError: productsError,
+    data: products
+  } = useStripeProducts();
   const [checkoutSessionLoading, setCheckoutSessionLoading] = useState(false);
-  const [products, setProducts] = useState([]);
   const [searchParams, setSearchParams] = useSearchParams();
   const postBillingRedirect = searchParams.get("billing_redirect");
 
@@ -86,24 +93,6 @@ export default function Billing() {
     setSearchParams
   ]);
 
-  useEffect(() => {
-    setProductsLoading(true);
-
-    getProducts(stripePayments, {
-      includePrices: true,
-      activeOnly: true
-    })
-      .then(products => {
-        setProducts(products);
-      })
-      .catch(error => {
-        setProductsError(error);
-      })
-      .finally(() => {
-        setProductsLoading(false);
-      });
-  }, [setProductsLoading, setProductsError, setProducts]);
-
   const handleSelectPlan = useCallback(
     e => {
       setCheckoutSessionLoading(true);
@@ -118,6 +107,7 @@ export default function Billing() {
           window.location.assign(session.url);
         })
         .catch(error => {
+          setCheckoutSessionLoading(false);
           enqueueSnackbar(
             `Error contacting payment processor Stripe. Please try again later or contact ${process.env.REACT_APP_SUPPORT_EMAIL} for support!`,
             { variant: "error", preventDuplicate: true }
@@ -130,7 +120,7 @@ export default function Billing() {
   const planList = products.map(product => {
     const plan = plans[product.metadata.id];
     const priceId = product.prices[0].id;
-    const isCurrentPlan = user.tier === plan.tier;
+    const isCurrentPlan = user.subscriptionPlan === product.metadata.id;
 
     let buttonText = "Select This Plan";
     if (isCurrentPlan) buttonText = "Current Plan";

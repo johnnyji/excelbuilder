@@ -19,7 +19,7 @@ export default function RemainingCredits({ children }) {
   const [remainingCredits, setRemainingCredits] = useState(-1);
 
   useEffect(() => {
-    if (user) {
+    if (user.uid && user.subscriptionTier === "STARTER") {
       setLoading(true);
       setError(null);
 
@@ -43,14 +43,15 @@ export default function RemainingCredits({ children }) {
           setLoading(false);
           setRemainingCredits(remaining < 0 ? 0 : remaining);
         })
-        .catch(e => {
-          console.log(e);
-          alert(e);
+        .catch(_ => {
+          setError(
+            `Error loading your remaining credits, please refresh the page. If the issue persists, reach out to ${process.env.REACT_APP_SUPPORT_EMAIL}`
+          );
         });
     } else {
       setLoading(false);
     }
-  }, [setLoading, setError, user]);
+  }, [setLoading, setError, user.uid, user.subscriptionTier]);
 
   if (loading) return <FullPageSpinner />;
 

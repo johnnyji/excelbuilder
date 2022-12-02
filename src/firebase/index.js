@@ -40,7 +40,7 @@ const googleProvider = new GoogleAuthProvider();
 
 const stripePayments = getStripePayments(app, {
   productsCollection: "stripeProducts",
-  customersCollection: "users"
+  customersCollection: "stripeUsers"
 });
 
 const signInWithGoogle = async () => {
@@ -54,8 +54,7 @@ const signInWithGoogle = async () => {
         uid: user.uid,
         name: user.displayName,
         authProvider: "google",
-        email: user.email,
-        tier: 0
+        email: user.email
       });
     }
   } catch (err) {

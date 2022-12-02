@@ -1,4 +1,5 @@
 import React from "react";
+import { QueryClient, QueryClientProvider } from "react-query";
 
 import { Routes, Route } from "react-router-dom";
 
@@ -13,7 +14,6 @@ import Login from "./components/login";
 import Billing from "./components/billing";
 import NoMatch from "./components/nomatch";
 
-import RemainingCreditsContext from "./contexts/RemainingCredits";
 import UserContext from "./contexts/User";
 
 const styles = {
@@ -23,17 +23,19 @@ const styles = {
   }
 };
 
+const queryClient = new QueryClient();
+
 export default function App() {
   return (
     <div style={styles.main}>
-      <SnackbarProvider
-        anchorOrigin={{ vertical: "top", horizontal: "center" }}
-        autoHideDuration={5000}
-        maxSnack={4}
-      >
-        <CssBaseline />
-        <UserContext>
-          <RemainingCreditsContext>
+      <QueryClientProvider client={queryClient}>
+        <SnackbarProvider
+          anchorOrigin={{ vertical: "top", horizontal: "center" }}
+          autoHideDuration={5000}
+          maxSnack={4}
+        >
+          <CssBaseline />
+          <UserContext>
             <Routes>
               <Route path="/signin" element={<Login />} />
               <Route path="/" element={<Dashboard />}>
@@ -43,9 +45,9 @@ export default function App() {
               </Route>
               <Route path="*" element={<NoMatch />} />
             </Routes>
-          </RemainingCreditsContext>
-        </UserContext>
-      </SnackbarProvider>
+          </UserContext>
+        </SnackbarProvider>
+      </QueryClientProvider>
     </div>
   );
 }
