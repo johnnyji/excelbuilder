@@ -1,6 +1,8 @@
 import React, { useCallback, useContext, useEffect, useState } from "react";
-import { Link, useLocation } from "react-router-dom";
+import { Link, useSearchParams } from "react-router-dom";
+import { useWindowSize } from "react-use";
 import { useSnackbar } from "notistack";
+import Confetti from "react-confetti";
 
 import {
   Alert,
@@ -62,6 +64,8 @@ const getSystemWording = system => {
 
 export default function Generator() {
   const { enqueueSnackbar } = useSnackbar();
+  const { width: windowWidth, height: windowHeight } = useWindowSize();
+  const [isConfettiExploding, setIsConfettiExploding] = useState(false);
   const user = useContext(UserContext);
   const [genStatus, setGenStatus] = useState("IDLE");
   const [system, setSystem] = useState("EXCEL");
@@ -72,15 +76,15 @@ export default function Generator() {
   );
   const [promptError, setPromptError] = useState(null);
 
-  const location = useLocation();
-  const postBillingRedirect = new URLSearchParams(location.search).get(
-    "billing_redirect"
-  );
+  const [searchParams, setSearchParams] = useSearchParams();
+  const postBillingRedirect = searchParams.get("billing_redirect");
   const remainingCredits = useContext(RemainingCreditsContext);
   const outOfCredits = remainingCredits === 0;
 
   useEffect(() => {
     if (postBillingRedirect === "SUCCESS") {
+      setIsConfettiExploding(true);
+      setSearchParams(searchParams.delete("billing_redirect"));
       enqueueSnackbar("Your plan was successfully changed!", {
         preventDuplicate: true,
         variant: "success"
@@ -119,11 +123,13 @@ export default function Generator() {
   }, [
     enqueueSnackbar,
     genStatus,
-    setGenStatus,
-    prompt,
     postBillingRedirect,
-    user,
-    system
+    prompt,
+    searchParams,
+    setGenStatus,
+    setSearchParams,
+    system,
+    user
   ]);
 
   const handleGenerate = useCallback(() => {
@@ -157,6 +163,16 @@ export default function Generator() {
 
   return (
     <DashboardWrapper title="Build Formula">
+      {isConfettiExploding && (
+        <Confetti
+          numberOfPieces={1000}
+          recycle={false}
+          height={windowHeight}
+          width={windowWidth}
+          style={{ zIndex: 10000 }}
+        />
+      )}
+
       <RemainingCreditsBanner />
 
       <Typography variant="subtitle1" gutterBottom>

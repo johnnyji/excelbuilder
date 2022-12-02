@@ -1,6 +1,6 @@
 import React, { useCallback, useContext, useEffect, useState } from "react";
 
-import { useLocation } from "react-router-dom";
+import { useSearchParams } from "react-router-dom";
 
 import { useSnackbar } from "notistack";
 
@@ -63,10 +63,8 @@ export default function Billing() {
   const [productsError, setProductsError] = useState(null);
   const [checkoutSessionLoading, setCheckoutSessionLoading] = useState(false);
   const [products, setProducts] = useState([]);
-  const location = useLocation();
-  const postBillingRedirect = new URLSearchParams(location.search).get(
-    "redirect"
-  );
+  const [searchParams, setSearchParams] = useSearchParams();
+  const postBillingRedirect = searchParams.get("billing_redirect");
 
   useEffect(() => {
     // If we come back to this page from the Stripe billing page,
@@ -74,12 +72,19 @@ export default function Billing() {
     setCheckoutSessionLoading(false);
 
     if (postBillingRedirect === "CANCEL") {
+      setSearchParams(searchParams.delete("billing_redirect"));
       enqueueSnackbar("Oops, your payment did not go through.", {
         preventDuplicate: true,
         variant: "error"
       });
     }
-  }, [setCheckoutSessionLoading, enqueueSnackbar, postBillingRedirect]);
+  }, [
+    setCheckoutSessionLoading,
+    enqueueSnackbar,
+    postBillingRedirect,
+    searchParams,
+    setSearchParams
+  ]);
 
   useEffect(() => {
     setProductsLoading(true);

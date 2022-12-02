@@ -1,4 +1,4 @@
-import React, { useCallback, useContext, useState } from "react";
+import React, { useCallback, useContext } from "react";
 import { Outlet, useNavigate, useLocation } from "react-router-dom";
 import {
   Avatar,
@@ -20,38 +20,15 @@ import ExplainerIcon from "@mui/icons-material/Plagiarism";
 import GeneratorIcon from "@mui/icons-material/Superscript";
 
 import { UserContext } from "../../contexts/User";
-import { RemainingCreditsContext } from "../../contexts/User";
 
 import { logout } from "../../firebase";
-
-const styles = {
-  main: {
-    display: "flex",
-    flexDirection: "column",
-    padding: "16px"
-  },
-  generateButton: {
-    marginTop: "16px",
-    marginBottom: "16px"
-  },
-  result: {
-    background: "#F7F7F7",
-    padding: "16px",
-    "&:hover": {
-      background: "#FFF",
-      cursor: "pointer"
-    }
-  }
-};
 
 const drawerWidth = 240;
 
 export default function Dashboard({ children }) {
-  const [activeTab, setActiveTab] = useState("GENERATOR");
   const location = useLocation();
   const navigate = useNavigate();
   const user = useContext(UserContext);
-  const remainingCredits = useContext(UserContext);
 
   const handleNavGenerator = useCallback(
     e => {

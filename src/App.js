@@ -26,7 +26,11 @@ const styles = {
 export default function App() {
   return (
     <div style={styles.main}>
-      <SnackbarProvider autoHideDuration={5000} maxSnack={4}>
+      <SnackbarProvider
+        anchorOrigin={{ vertical: "top", horizontal: "center" }}
+        autoHideDuration={5000}
+        maxSnack={4}
+      >
         <CssBaseline />
         <UserContext>
           <RemainingCreditsContext>
