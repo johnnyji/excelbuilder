@@ -1,7 +1,8 @@
 import React from "react";
 import { Navigate, useLocation } from "react-router-dom";
 
-import Login from "../components/login";
+import FullPageError from "../components/ui/FullPageError";
+import FullPageSpinner from "../components/ui/FullPageSpinner";
 
 import useCurrentUser from "../hooks/useCurrentUser";
 
@@ -13,11 +14,11 @@ export default function User({ children }) {
   const location = useLocation();
 
   if (loading) {
-    return "Loading...";
+    return <FullPageSpinner />;
   }
 
   if (error) {
-    return error;
+    return <FullPageError />;
   }
 
   if (!user && location.pathname !== "/signin") {

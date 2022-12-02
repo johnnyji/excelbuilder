@@ -24,13 +24,13 @@ import { getStripePayments } from "@stripe/firestore-stripe-payments";
 import { v4 as uuidv4 } from "uuid";
 
 const firebaseConfig = {
-  apiKey: "AIzaSyA4DO6CUdnEjSxwG1ozi6kaw42YI_sZHdg",
+  apiKey: process.env.REACT_APP_FIREBASE_API_KEY,
   authDomain: "excelbuilder.firebaseapp.com",
   projectId: "excelbuilder",
   storageBucket: "excelbuilder.appspot.com",
-  messagingSenderId: "751392564220",
-  appId: "1:751392564220:web:8b6abe0af24437c4520879",
-  measurementId: "G-VN9NTD5W2V"
+  messagingSenderId: process.env.REACT_APP_FIREBASE_MESSAGE_SENDER_ID,
+  appId: process.env.REACT_APP_FIREBASE_APP_ID,
+  measurementId: process.env.REACT_APP_FIREBASE_MEASUREMENT_ID
 };
 
 const app = initializeApp(firebaseConfig);
@@ -91,7 +91,6 @@ const registerWithEmailAndPassword = async (name, email, password) => {
 };
 
 const createGeneration = async (user, prompt, completion) => {
-  debugger;
   try {
     const now = new Date();
     const uid = uuidv4();

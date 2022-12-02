@@ -1,34 +1,22 @@
 import React, { useContext } from "react";
-import { Alert, AlertTitle } from "@mui/material";
+import { Alert, Box } from "@mui/material";
 import { Link } from "react-router-dom";
 
 import { RemainingCreditsContext } from "../../contexts/RemainingCredits";
 import { UserContext } from "../../contexts/User";
 
-const styles = {
-  main: {
-    padding: "8px",
-    display: "flex",
-    justifyContent: "space-between"
-  }
-};
-
-export default function Header() {
+export default function RemainingCreditsBanner() {
   const user = useContext(UserContext);
   const remainingCredits = useContext(RemainingCreditsContext);
 
+  if (user.tier > 0) return null;
+
   return (
-    <Alert severity="info">
-      <AlertTitle>
-        {user.tier > 0 ? (
-          "Unlimited Credits"
-        ) : (
-          <Link to="/billing">{remainingCredits} credits left this month</Link>
-        )}
-      </AlertTitle>
-      <Link to="/billing">
-        Upgrade to the premium plan to access unlimited builds & explains!
-      </Link>
-    </Alert>
+    <Box mb={2}>
+      <Alert severity={remainingCredits === 0 ? "error" : "info"}>
+        {remainingCredits} credits left this month —{" "}
+        <Link to="/billing">Get more credits here!</Link>
+      </Alert>
+    </Box>
   );
 }

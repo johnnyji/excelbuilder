@@ -7,6 +7,9 @@ import { query, getDocs, collection, where } from "firebase/firestore";
 
 import { db } from "../firebase";
 
+import FullPageError from "../components/ui/FullPageError";
+import FullPageSpinner from "../components/ui/FullPageSpinner";
+
 export const RemainingCreditsContext = React.createContext();
 
 export default function RemainingCredits({ children }) {
@@ -49,9 +52,9 @@ export default function RemainingCredits({ children }) {
     }
   }, [setLoading, setError, user]);
 
-  if (loading) return "Loading...";
+  if (loading) return <FullPageSpinner />;
 
-  if (error) return error;
+  if (error) return <FullPageError />;
 
   return (
     <RemainingCreditsContext.Provider value={remainingCredits}>

@@ -1,5 +1,9 @@
 import React, { useCallback, useContext, useEffect, useState } from "react";
+import { Link, useLocation } from "react-router-dom";
+import { useSnackbar } from "notistack";
+
 import {
+  Alert,
   Button,
   ButtonGroup,
   Paper,
@@ -7,6 +11,7 @@ import {
   TextField,
   Typography
 } from "@mui/material";
+
 import { Configuration, OpenAIApi } from "openai";
 
 import CopyToClipboard from "react-copy-to-clipboard";
@@ -15,6 +20,10 @@ import { createGeneration } from "../../firebase";
 
 import RemainingCreditsBanner from "../shared/RemainingCreditsBanner";
 
+import DashboardWrapper from "../ui/DashboardWrapper";
+import Emoji from "../ui/Emoji";
+
+import { RemainingCreditsContext } from "../../contexts/RemainingCredits";
 import { UserContext } from "../../contexts/User";
 
 const styles = {
@@ -38,7 +47,7 @@ const styles = {
 };
 
 const configuration = new Configuration({
-  apiKey: "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"
+  apiKey: process.env.REACT_APP_OPENAI_API_KEY
 });
 
 const openai = new OpenAIApi(configuration);
@@ -52,6 +61,7 @@ const getSystemWording = system => {
 // Take first name of name column, add a "@gmail.com" to the end and put that into the email column
 
 export default function Generator() {
+  const { enqueueSnackbar } = useSnackbar();
   const user = useContext(UserContext);
   const [genStatus, setGenStatus] = useState("IDLE");
   const [system, setSystem] = useState("EXCEL");
@@ -62,7 +72,21 @@ export default function Generator() {
   );
   const [promptError, setPromptError] = useState(null);
 
+  const location = useLocation();
+  const postBillingRedirect = new URLSearchParams(location.search).get(
+    "billing_redirect"
+  );
+  const remainingCredits = useContext(RemainingCreditsContext);
+  const outOfCredits = remainingCredits === 0;
+
   useEffect(() => {
+    if (postBillingRedirect === "SUCCESS") {
+      enqueueSnackbar("Your plan was successfully changed!", {
+        preventDuplicate: true,
+        variant: "success"
+      });
+    }
+
     if (genStatus === "GENERATING") {
       setResultCopied(false);
 
@@ -92,7 +116,15 @@ export default function Generator() {
           setGenStatus("ERROR");
         });
     }
-  }, [genStatus, setGenStatus, prompt, user, system]);
+  }, [
+    enqueueSnackbar,
+    genStatus,
+    setGenStatus,
+    prompt,
+    postBillingRedirect,
+    user,
+    system
+  ]);
 
   const handleGenerate = useCallback(() => {
     if (prompt.length < 10) {
@@ -124,16 +156,13 @@ export default function Generator() {
   const generating = genStatus === "GENERATING";
 
   return (
-    <div>
-      <Typography variant="h4" gutterBottom>
-        <b>Build a formula</b>
-      </Typography>
+    <DashboardWrapper title="Build Formula">
       <RemainingCreditsBanner />
 
       <Typography variant="subtitle1" gutterBottom>
         What type of system is this for?
       </Typography>
-      <ButtonGroup>
+      <ButtonGroup disabled={generating}>
         <Button
           onClick={handleSetSystem}
           name="EXCEL"
@@ -175,7 +204,7 @@ export default function Generator() {
         />
         <Button
           color="primary"
-          disabled={generating}
+          disabled={generating || outOfCredits}
           onClick={handleGenerate}
           variant="contained"
           style={styles.generateButton}
@@ -183,6 +212,13 @@ export default function Generator() {
         >
           {generating ? "Generating..." : "Generate"}
         </Button>
+        {outOfCredits && (
+          <Alert severity="error">
+            You're out of credits for the month <Emoji symbol="😢" /> Credits
+            reset on the 1st of every month. If you would like unlimited
+            credits, you can <Link to="/billing">upgrade your plan here!</Link>
+          </Alert>
+        )}
         {result && (
           <>
             <Typography variant="h4" gutterBottom>
@@ -202,6 +238,6 @@ export default function Generator() {
           </>
         )}
       </div>
-    </div>
+    </DashboardWrapper>
   );
 }

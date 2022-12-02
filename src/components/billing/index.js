@@ -1,5 +1,9 @@
 import React, { useCallback, useContext, useEffect, useState } from "react";
 
+import { useLocation } from "react-router-dom";
+
+import { useSnackbar } from "notistack";
+
 import {
   Button,
   Card,
@@ -8,40 +12,44 @@ import {
   ListItem,
   ListItemText,
   ListItemIcon,
-  Typography,
+  Typography
 } from "@mui/material";
-
-import CheckIcon from "@mui/icons-material/CheckCircle";
 
 import {
   createCheckoutSession,
-  getProducts,
+  getProducts
 } from "@stripe/firestore-stripe-payments";
 
 import { stripePayments } from "../../firebase";
 
 import { UserContext } from "../../contexts/User";
 
+import DashboardError from "../ui/DashboardError";
+import DashboardWrapper from "../ui/DashboardWrapper";
+import Emoji from "../ui/Emoji";
+import FullPageSpinner from "../ui/FullPageSpinner";
+
 const styles = {
   card: {
     margin: 16,
     padding: 16,
-    width: 350,
-  },
+    width: 350
+  }
 };
 
+// PREMIUM / PREMIUM_Y must be set as a metadata item of `id=PREMIUM(_Y)`
+// on the respective Stripe products of  in order for the following module work
 const plans = {
   PREMIUM: {
     title: "Premium",
     tier: 1,
-    values: ["7 explains/builds per month"],
+    values: ["7 explains/builds per month"]
   },
   PREMIUM_Y: {
-    id: "PREMIUM_Y",
     title: "Premium (Yearly)",
     tier: 2,
-    values: ["7 explains/builds per month"],
-  },
+    values: ["7 explains/builds per month"]
+  }
 };
 
 export default function Billing() {
@@ -50,22 +58,40 @@ export default function Billing() {
   // 1. Make sure cancel/success redirects notify a snackbar
   // 2. Make sure error states are recognized on this page
   const user = useContext(UserContext);
-  const [checkoutError, setCheckoutError] = useState(null);
+  const { enqueueSnackbar } = useSnackbar();
   const [productsLoading, setProductsLoading] = useState(true);
   const [productsError, setProductsError] = useState(null);
+  const [checkoutSessionLoading, setCheckoutSessionLoading] = useState(false);
   const [products, setProducts] = useState([]);
+  const location = useLocation();
+  const postBillingRedirect = new URLSearchParams(location.search).get(
+    "redirect"
+  );
+
+  useEffect(() => {
+    // If we come back to this page from the Stripe billing page,
+    // we want to make sure that we remove the checkout session loading spinner
+    setCheckoutSessionLoading(false);
+
+    if (postBillingRedirect === "CANCEL") {
+      enqueueSnackbar("Oops, your payment did not go through.", {
+        preventDuplicate: true,
+        variant: "error"
+      });
+    }
+  }, [setCheckoutSessionLoading, enqueueSnackbar, postBillingRedirect]);
 
   useEffect(() => {
     setProductsLoading(true);
 
     getProducts(stripePayments, {
       includePrices: true,
-      activeOnly: true,
+      activeOnly: true
     })
-      .then((products) => {
+      .then(products => {
         setProducts(products);
       })
-      .catch((error) => {
+      .catch(error => {
         setProductsError(error);
       })
       .finally(() => {
@@ -74,22 +100,29 @@ export default function Billing() {
   }, [setProductsLoading, setProductsError, setProducts]);
 
   const handleSelectPlan = useCallback(
-    (e) => {
+    e => {
+      setCheckoutSessionLoading(true);
+
       const priceId = e.target.getAttribute("name");
       createCheckoutSession(stripePayments, {
         price: priceId,
+        success_url: `${window.location.origin}?billing_redirect=SUCCESS`,
+        cancel_url: `${window.location.origin}/billing?billing_redirect=CANCEL`
       })
-        .then((session) => {
+        .then(session => {
           window.location.assign(session.url);
         })
-        .catch((error) => {
-          setCheckoutError(error);
+        .catch(error => {
+          enqueueSnackbar(
+            `Error contacting payment processor Stripe. Please try again later or contact ${process.env.REACT_APP_SUPPORT_EMAIL} for support!`,
+            { variant: "error", preventDuplicate: true }
+          );
         });
     },
-    [setCheckoutError]
+    [enqueueSnackbar, setCheckoutSessionLoading]
   );
 
-  const planList = products.map((product) => {
+  const planList = products.map(product => {
     const plan = plans[product.metadata.id];
     const priceId = product.prices[0].id;
     const isCurrentPlan = user.tier === plan.tier;
@@ -120,7 +153,7 @@ export default function Billing() {
               {plan.values.map((value, index) => (
                 <ListItem key={`${plan.title}-value-${index}`}>
                   <ListItemIcon>
-                    <CheckIcon />
+                    <Emoji symbol="✅ " />
                   </ListItemIcon>
                   <ListItemText primary={value} />
                 </ListItem>
@@ -133,11 +166,14 @@ export default function Billing() {
   });
 
   return (
-    <>
-      <Typography variant="h4">
-        <b>Billing</b>
-      </Typography>
+    <DashboardWrapper title="Billing">
+      {(checkoutSessionLoading || productsLoading) && <FullPageSpinner />}
+      {productsError && (
+        <DashboardError
+          message={`There was an issue loading subscription plans. Please refresh the page to try again or contact ${process.env.REACT_APP_SUPPORT_EMAIL} for help.`}
+        />
+      )}
       {planList}
-    </>
+    </DashboardWrapper>
   );
 }
