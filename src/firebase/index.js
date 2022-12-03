@@ -8,7 +8,7 @@ import {
   signInWithEmailAndPassword,
   createUserWithEmailAndPassword,
   sendPasswordResetEmail,
-  signOut
+  signOut,
 } from "firebase/auth";
 
 import {
@@ -17,7 +17,7 @@ import {
   getDocs,
   collection,
   where,
-  addDoc
+  addDoc,
 } from "firebase/firestore";
 
 import { getStripePayments } from "@stripe/firestore-stripe-payments";
@@ -25,13 +25,13 @@ import { getStripePayments } from "@stripe/firestore-stripe-payments";
 import { v4 as uuidv4 } from "uuid";
 
 const firebaseConfig = {
-  apiKey: process.env.REACT_APP_FIREBASE_API_KEY,
+  apiKey: process.env.REACT_APP_FIREBASE_API_KEY || "mock_key",
   authDomain: "excelbuilder.firebaseapp.com",
   projectId: "excelbuilder",
   storageBucket: "excelbuilder.appspot.com",
   messagingSenderId: process.env.REACT_APP_FIREBASE_MESSAGE_SENDER_ID,
   appId: process.env.REACT_APP_FIREBASE_APP_ID,
-  measurementId: process.env.REACT_APP_FIREBASE_MEASUREMENT_ID
+  measurementId: process.env.REACT_APP_FIREBASE_MEASUREMENT_ID,
 };
 
 const app = initializeApp(firebaseConfig);
@@ -42,7 +42,7 @@ const googleProvider = new GoogleAuthProvider();
 
 const stripePayments = getStripePayments(app, {
   productsCollection: "stripeProducts",
-  customersCollection: "stripeUsers"
+  customersCollection: "stripeUsers",
 });
 
 const signInWithGoogle = async () => {
@@ -56,7 +56,7 @@ const signInWithGoogle = async () => {
         uid: user.uid,
         name: user.displayName,
         authProvider: "google",
-        email: user.email
+        email: user.email,
       });
     }
   } catch (err) {
@@ -83,7 +83,7 @@ const registerWithEmailAndPassword = async (name, email, password) => {
       uid: user.uid,
       name,
       authProvider: "local",
-      email
+      email,
     });
   } catch (err) {
     console.error(err);
@@ -102,7 +102,7 @@ const createGeneration = async (user, prompt, completion) => {
       insertedAt: now,
       updatedAt: now,
       generatedAt: now,
-      userUid: user.uid
+      userUid: user.uid,
     };
     await addDoc(collection(db, "generations"), data);
   } catch (err) {
@@ -111,7 +111,7 @@ const createGeneration = async (user, prompt, completion) => {
   }
 };
 
-const sendPasswordReset = async email => {
+const sendPasswordReset = async (email) => {
   try {
     await sendPasswordResetEmail(auth, email);
     alert("Password reset link sent!");
@@ -136,5 +136,5 @@ export {
   registerWithEmailAndPassword,
   sendPasswordReset,
   stripePayments,
-  logout
+  logout,
 };
