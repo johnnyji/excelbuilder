@@ -81,7 +81,9 @@ export default function RemainingCredits({ children }) {
           setRemainingCredits(remaining < 0 ? 0 : remaining);
           setLoaded(true);
         })
-        .catch(_ => {
+        .catch(error => {
+          console.error(error);
+          setLoading(false);
           setError(
             `Error loading your remaining credits, please refresh the page. If the issue persists, reach out to ${process.env.REACT_APP_SUPPORT_EMAIL}`
           );

@@ -5,7 +5,7 @@ import { useCollectionData } from "react-firebase-hooks/firestore";
 
 import {
   getCurrentUserSubscriptions,
-  getProduct
+  getProduct,
 } from "@stripe/firestore-stripe-payments";
 
 import { stripePayments } from "../firebase";
@@ -17,7 +17,7 @@ const paymentDelinquentStatuses = [
   "incomplete",
   "incomplete_expired",
   "past_due",
-  "unpaid"
+  "unpaid",
 ];
 
 export default function useCurrentUser() {
@@ -78,6 +78,11 @@ export default function useCurrentUser() {
 
   const isLoading = authLoading || loading || subLoading;
   const isError = authError || error || subError;
+
+  if (authError) console.error("Firebase Auth Error: ", authError);
+  if (error) console.error("Firebase User Collection Query Error:", error);
+  if (subError) console.error("Firebase Stripe Sub Error:", subError);
+
   const currentUser = user
     ? {
         ...user,
@@ -85,7 +90,7 @@ export default function useCurrentUser() {
         photoURL: authUser.photoURL,
         subscriptionPlan: sub,
         subscriptionPlanKey: subKey,
-        paymentDelinquent: paymentDelinquentStatuses.includes(sub?.status)
+        paymentDelinquent: paymentDelinquentStatuses.includes(sub?.status),
       }
     : null;
   return [currentUser, isLoading, isError];
