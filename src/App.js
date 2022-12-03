@@ -16,11 +16,13 @@ import NoMatch from "./components/nomatch";
 
 import UserContext from "./contexts/User";
 
+import "./firebase";
+
 const styles = {
   main: {
     display: "flex",
-    flexDirection: "column"
-  }
+    flexDirection: "column",
+  },
 };
 
 const queryClient = new QueryClient();
