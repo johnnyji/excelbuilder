@@ -14,11 +14,10 @@ import {
   Typography
 } from "@mui/material";
 
-import { Configuration, OpenAIApi } from "openai";
-
 import CopyToClipboard from "react-copy-to-clipboard";
 
 import { createGeneration } from "../../firebase";
+import openai from "../../openai";
 
 import RemainingCreditsBanner from "../shared/RemainingCreditsBanner";
 
@@ -48,12 +47,6 @@ const styles = {
   }
 };
 
-const configuration = new Configuration({
-  apiKey: process.env.REACT_APP_OPENAI_API_KEY
-});
-
-const openai = new OpenAIApi(configuration);
-
 const getSystemWording = system => {
   if (system === "EXCEL") return "an Excel";
   if (system === "SHEETS") return "a Google Sheets";
@@ -71,9 +64,7 @@ export default function Generator() {
   const [system, setSystem] = useState("EXCEL");
   const [result, setResult] = useState("");
   const [resultCopied, setResultCopied] = useState(false);
-  const [prompt, setPrompt] = useState(
-    "If budget is >3, then mark hello as paid"
-  );
+  const [prompt, setPrompt] = useState("");
   const [promptError, setPromptError] = useState(null);
 
   const [searchParams, setSearchParams] = useSearchParams();
@@ -96,12 +87,12 @@ export default function Generator() {
 
       openai
         .createCompletion({
-          model: "text-davinci-002",
+          model: "text-davinci-003",
           prompt: `Generate me ${getSystemWording(
             system
           )} formula for:\n\n${prompt}`,
           temperature: 0,
-          max_tokens: 256,
+          max_tokens: 1000,
           top_p: 1,
           frequency_penalty: 0,
           presence_penalty: 0
@@ -162,7 +153,10 @@ export default function Generator() {
   const generating = genStatus === "GENERATING";
 
   return (
-    <DashboardWrapper title="Build Formula">
+    <DashboardWrapper
+      title="Build Formula"
+      subtitle="Describe in english what you want an Excel/Sheets/Airtable formula to do and ExcelBuilder will generate you the formula! 🤯"
+    >
       {isConfettiExploding && (
         <Confetti
           numberOfPieces={1000}
@@ -213,7 +207,7 @@ export default function Generator() {
           fullWidth
           multiline
           rows={4}
-          placeholder="If the Budget cell is over $3, mark as Over Budget"
+          placeholder="If Column A cell is over $3, mark Column C as Over Budget"
           value={prompt}
           variant="outlined"
           onChange={handleSetPrompt}

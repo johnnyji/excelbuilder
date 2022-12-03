@@ -7,13 +7,15 @@ import {
   TextField,
   Typography
 } from "@mui/material";
-import { Configuration, OpenAIApi } from "openai";
 
 import CopyToClipboard from "react-copy-to-clipboard";
 
 import { createGeneration } from "../../firebase";
+import openai from "../../openai";
 
 import RemainingCreditsBanner from "../shared/RemainingCreditsBanner";
+
+import DashboardWrapper from "../ui/DashboardWrapper";
 
 import { UserContext } from "../../contexts/User";
 
@@ -37,12 +39,6 @@ const styles = {
   }
 };
 
-const configuration = new Configuration({
-  apiKey: "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"
-});
-
-const openai = new OpenAIApi(configuration);
-
 const getSystemWording = system => {
   if (system === "EXCEL") return "Excel formula";
   if (system === "SHEETS") return "Google Sheets formula";
@@ -57,9 +53,7 @@ export default function Generator() {
   const [system, setSystem] = useState("EXCEL");
   const [result, setResult] = useState("");
   const [resultCopied, setResultCopied] = useState(false);
-  const [prompt, setPrompt] = useState(
-    "If budget is >3, then mark hello as paid"
-  );
+  const [prompt, setPrompt] = useState("");
   const [promptError, setPromptError] = useState(null);
 
   useEffect(() => {
@@ -68,12 +62,12 @@ export default function Generator() {
 
       openai
         .createCompletion({
-          model: "text-davinci-002",
-          prompt: `Explain to me this ${getSystemWording(
+          model: "text-davinci-003",
+          prompt: `Explain to me what this ${getSystemWording(
             system
-          )} in plain english:\n\n${prompt}`,
+          )} is doing in plain english:\n\n${prompt}`,
           temperature: 0,
-          max_tokens: 256,
+          max_tokens: 1000,
           top_p: 1,
           frequency_penalty: 0,
           presence_penalty: 0
@@ -119,10 +113,10 @@ export default function Generator() {
   const generating = genStatus === "GENERATING";
 
   return (
-    <div>
-      <Typography variant="h4" gutterBottom>
-        <b>Build a formula</b>
-      </Typography>
+    <DashboardWrapper
+      title="Explain Formula"
+      subtitle="Paste a Excel/Sheets/Airtable formula you want explained to you in plain english 🎓"
+    >
       <RemainingCreditsBanner />
 
       <Typography variant="subtitle1" gutterBottom>
@@ -154,7 +148,7 @@ export default function Generator() {
 
       <div style={styles.generator}>
         <Typography variant="subtitle1" gutterBottom>
-          Describe the formula you want
+          Paste {getSystemWording(system)}:
         </Typography>
         <TextField
           disabled={generating}
@@ -163,7 +157,7 @@ export default function Generator() {
           fullWidth
           multiline
           rows={4}
-          placeholder="If the Budget cell is over $3, mark as Over Budget"
+          placeholder='=IF(A1>3,"Over Budget","")'
           value={prompt}
           variant="outlined"
           onChange={handleSetPrompt}
@@ -176,19 +170,16 @@ export default function Generator() {
           style={styles.generateButton}
           fullWidth={false}
         >
-          {generating ? "Generating..." : "Generate"}
+          {generating ? "Explaining..." : "Explain"}
         </Button>
         {result && (
           <>
             <Typography variant="h4" gutterBottom>
-              <b>Result:</b>
-            </Typography>
-            <Typography variant="subtitle1" gutterBottom>
-              Copy/paste this formula into your "Formula" field:
+              <b>Explanation:</b>
             </Typography>
             <CopyToClipboard text={result}>
               <Paper style={styles.result}>
-                <code>IF(Budget> 3, "Overpaid", "")</code>
+                <code>{result}</code>
               </Paper>
             </CopyToClipboard>
             {resultCopied && (
@@ -197,6 +188,6 @@ export default function Generator() {
           </>
         )}
       </div>
-    </div>
+    </DashboardWrapper>
   );
 }
