@@ -12,6 +12,14 @@ import { stripePayments } from "../firebase";
 
 import { auth, db } from "../firebase";
 
+// https://mrcoles.com/stripe-api-subscription-status/
+const paymentDelinquentStatuses = [
+  "incomplete",
+  "incomplete_expired",
+  "past_due",
+  "unpaid"
+];
+
 export default function useCurrentUser() {
   // The firebase auth user object is not stored in our Firestore main
   // db, instead it is specially allocated to a Firebase managed auth
@@ -30,7 +38,8 @@ export default function useCurrentUser() {
 
   const [subLoading, setSubLoading] = useState(false);
   const [subError, setSubError] = useState(null);
-  const [sub, setSub] = useState("STARTER");
+  const [sub, setSub] = useState(null);
+  const [subKey, setSubKey] = useState("STARTER");
 
   useEffect(() => {
     if (userUid) {
@@ -40,7 +49,8 @@ export default function useCurrentUser() {
           setSubLoading(true);
 
           const subscriptions = await getCurrentUserSubscriptions(
-            stripePayments
+            stripePayments,
+            { status: ["active", ...paymentDelinquentStatuses] }
           );
 
           const subscription = subscriptions.sort(
@@ -53,7 +63,8 @@ export default function useCurrentUser() {
             ? getProduct(stripePayments, productId)
             : Promise.resolve(null));
 
-          setSub(product?.metadata?.id ?? "STARTER");
+          setSub(subscription ?? null);
+          setSubKey(product?.metadata?.id ?? "STARTER");
           setSubLoading(false);
         } catch (e) {
           setSubError(e);
@@ -67,6 +78,13 @@ export default function useCurrentUser() {
 
   const isLoading = authLoading || loading || subLoading;
   const isError = authError || error || subError;
-  const currentUser = user ? { ...user, subscriptionPlan: sub } : null;
+  const currentUser = user
+    ? {
+        ...user,
+        subscriptionPlan: sub,
+        subscriptionPlanKey: subKey,
+        paymentDelinquent: paymentDelinquentStatuses.includes(sub?.status)
+      }
+    : null;
   return [currentUser, isLoading, isError];
 }

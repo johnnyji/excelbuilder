@@ -1,10 +1,13 @@
 import React, { useCallback, useContext, useEffect, useState } from "react";
-
 import { useSearchParams } from "react-router-dom";
-
 import { useSnackbar } from "notistack";
 
+import { httpsCallable } from "firebase/functions";
+import moment from "moment";
+
 import {
+  Alert,
+  Box,
   Button,
   Card,
   Grid,
@@ -16,7 +19,8 @@ import {
 } from "@mui/material";
 
 import { createCheckoutSession } from "@stripe/firestore-stripe-payments";
-import { stripePayments } from "../../firebase";
+
+import { functions, stripePayments } from "../../firebase";
 
 import { UserContext } from "../../contexts/User";
 
@@ -38,6 +42,10 @@ const styles = {
 // PREMIUM / PREMIUM_Y must be set as a metadata item of `id=PREMIUM(_Y)`
 // on the respective Stripe products of  in order for the following module work
 const plans = {
+  STARTER: {
+    title: "Starter",
+    values: ["7 explains/builds per month"]
+  },
   PREMIUM: {
     title: "Premium",
     values: ["7 explains/builds per month"]
@@ -48,20 +56,15 @@ const plans = {
   }
 };
 
+// We define this here as a dummy product because this isn't actually a product in Stripe
+const starterPlanProduct = {
+  metadata: {
+    id: "STARTER"
+  },
+  prices: [{ id: null }]
+};
+
 export default function Billing() {
-  // TODO:
-  //
-  // 1. So it turns out that checkout session creates a new active subscription every time, so instead we want to fetch the current user's subscriptions,
-  // and based on the status of their current subscription:
-  //  (https://github.com/stripe/stripe-firebase-extensions/blob/next/firestore-stripe-web-sdk/markdown/firestore-stripe-payments.subscriptionstatus.md)
-  // we can will need to render a button with a different action. We'll likely want to load the current user's subscription along with the user itself
-  //
-  // 2. We'll need to edit the "RemainingCredits" context to assess the user's subscription, and based on that subscription, we will be able to
-  // determine if the user has -1 remaining credits, if they do, it means they're unlimited credits
-  //
-  // 3. Delete the stripe users created in `users`
-  //
-  // 4. Create an option for the user to manage their existing subscription
   const user = useContext(UserContext);
   const { enqueueSnackbar } = useSnackbar();
   const {
@@ -69,14 +72,14 @@ export default function Billing() {
     isError: productsError,
     data: products
   } = useStripeProducts();
-  const [checkoutSessionLoading, setCheckoutSessionLoading] = useState(false);
+  const [billingSessionLoading, setBillingSessionLoading] = useState(false);
   const [searchParams, setSearchParams] = useSearchParams();
   const postBillingRedirect = searchParams.get("billing_redirect");
 
   useEffect(() => {
     // If we come back to this page from the Stripe billing page,
     // we want to make sure that we remove the checkout session loading spinner
-    setCheckoutSessionLoading(false);
+    setBillingSessionLoading(false);
 
     if (postBillingRedirect === "CANCEL") {
       setSearchParams(searchParams.delete("billing_redirect"));
@@ -86,18 +89,42 @@ export default function Billing() {
       });
     }
   }, [
-    setCheckoutSessionLoading,
+    setBillingSessionLoading,
     enqueueSnackbar,
     postBillingRedirect,
     searchParams,
     setSearchParams
   ]);
 
+  const handleManagePlan = useCallback(() => {
+    setBillingSessionLoading(true);
+    const stripeCustomerPortalRef = httpsCallable(
+      functions,
+      "ext-firestore-stripe-payments-createPortalLink"
+    );
+
+    stripeCustomerPortalRef({
+      returnUrl: `${window.location.origin}/billing`
+    })
+      .then(({ data }) => {
+        window.location.assign(data.url);
+      })
+      .catch(_ => {
+        setBillingSessionLoading(false);
+        enqueueSnackbar(
+          `Error contacting payment processor Stripe to manage your subscription. Please try again later or contact ${process.env.REACT_APP_SUPPORT_EMAIL} for support!`,
+          { variant: "error", preventDuplicate: true }
+        );
+      });
+
+    return;
+  }, [enqueueSnackbar, setBillingSessionLoading]);
+
   const handleSelectPlan = useCallback(
     e => {
-      setCheckoutSessionLoading(true);
-
+      setBillingSessionLoading(true);
       const priceId = e.target.getAttribute("name");
+
       createCheckoutSession(stripePayments, {
         price: priceId,
         success_url: `${window.location.origin}?billing_redirect=SUCCESS`,
@@ -106,24 +133,24 @@ export default function Billing() {
         .then(session => {
           window.location.assign(session.url);
         })
-        .catch(error => {
-          setCheckoutSessionLoading(false);
+        .catch(_ => {
+          setBillingSessionLoading(false);
           enqueueSnackbar(
             `Error contacting payment processor Stripe. Please try again later or contact ${process.env.REACT_APP_SUPPORT_EMAIL} for support!`,
             { variant: "error", preventDuplicate: true }
           );
         });
     },
-    [enqueueSnackbar, setCheckoutSessionLoading]
+    [enqueueSnackbar, setBillingSessionLoading]
   );
 
-  const planList = products.map(product => {
+  const planList = [starterPlanProduct].concat(products).map(product => {
     const plan = plans[product.metadata.id];
     const priceId = product.prices[0].id;
-    const isCurrentPlan = user.subscriptionPlan === product.metadata.id;
+    const isCurrentPlan = user.subscriptionPlanKey === product.metadata.id;
 
-    let buttonText = "Select This Plan";
-    if (isCurrentPlan) buttonText = "Current Plan";
+    let buttonText = "Select New Plan";
+    if (isCurrentPlan) buttonText = "Manage My Plan";
 
     return (
       <Card key={plan.title} style={styles.card}>
@@ -135,10 +162,9 @@ export default function Billing() {
           </Grid>
           <Grid alignItems="center" direction="column" container item xs={12}>
             <Button
-              disabled={isCurrentPlan}
               name={priceId}
               onClick={handleSelectPlan}
-              variant="outlined"
+              variant={isCurrentPlan ? "outlined" : "contained"}
             >
               {buttonText}
             </Button>
@@ -160,15 +186,44 @@ export default function Billing() {
     );
   });
 
+  const managePlan = (
+    <>
+      <Typography variant="h6" gutterBottom>
+        <b>Plan: {plans[user.subscriptionPlanKey].title}</b>
+      </Typography>
+      {user.subscriptionPlan?.cancel_at_period_end && (
+        <Box mb={2}>
+          <Alert severity="warning">
+            Your plan has been successfully canceled. Your current plan will
+            remain active until{" "}
+            <b>
+              {moment(user.subscriptionPlan.current_period_end).format(
+                "MMM Do YYYY"
+              )}
+            </b>
+            . We're sad to see you go <Emoji symbol="😭" />, if there is
+            anything we can do to help you stay, please email{" "}
+            {process.env.REACT_APP_SUPPORT_EMAIL}
+          </Alert>
+        </Box>
+      )}
+      <Button onClick={handleManagePlan} variant="contained">
+        {user.subscriptionPlan?.cancel_at_period_end
+          ? "Renew Plan"
+          : "Manage Plan"}
+      </Button>
+    </>
+  );
+
   return (
     <DashboardWrapper title="Billing">
-      {(checkoutSessionLoading || productsLoading) && <FullPageSpinner />}
+      {(billingSessionLoading || productsLoading) && <FullPageSpinner />}
       {productsError && (
         <DashboardError
           message={`There was an issue loading subscription plans. Please refresh the page to try again or contact ${process.env.REACT_APP_SUPPORT_EMAIL} for help.`}
         />
       )}
-      {planList}
+      {user.subscriptionPlanKey === "STARTER" ? planList : managePlan}
     </DashboardWrapper>
   );
 }

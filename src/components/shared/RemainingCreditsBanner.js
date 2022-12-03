@@ -9,7 +9,7 @@ export default function RemainingCreditsBanner() {
   const user = useContext(UserContext);
   const remainingCredits = useContext(RemainingCreditsContext);
 
-  if (user.subscriptionPlan !== "STARTER") return null;
+  if (user.subscriptionPlanKey !== "STARTER") return null;
 
   return (
     <Box mb={2}>

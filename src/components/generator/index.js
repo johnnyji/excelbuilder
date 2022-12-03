@@ -220,7 +220,7 @@ export default function Generator() {
         />
         <Button
           color="primary"
-          disabled={generating || outOfCredits}
+          disabled={generating || outOfCredits || user.paymentDelinquent}
           onClick={handleGenerate}
           variant="contained"
           style={styles.generateButton}
@@ -228,6 +228,13 @@ export default function Generator() {
         >
           {generating ? "Generating..." : "Generate"}
         </Button>
+        {user.paymentDelinquent && (
+          <Alert severity="error">
+            Your subscription seems to have a payment issue, please resolve that{" "}
+            <Link to="/billing">in your billing page</Link> first{" "}
+            <Emoji symbol="🙏" />
+          </Alert>
+        )}
         {outOfCredits && (
           <Alert severity="error">
             You're out of credits for the month <Emoji symbol="😢" /> Credits

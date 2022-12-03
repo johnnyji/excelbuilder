@@ -1,4 +1,5 @@
 import { initializeApp } from "firebase/app";
+import { getFunctions } from "firebase/functions";
 
 import {
   GoogleAuthProvider,
@@ -36,6 +37,7 @@ const firebaseConfig = {
 const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);
 const db = getFirestore(app);
+const functions = getFunctions(app);
 const googleProvider = new GoogleAuthProvider();
 
 const stripePayments = getStripePayments(app, {
@@ -127,6 +129,7 @@ export {
   auth,
   app,
   db,
+  functions,
   signInWithGoogle,
   logInWithEmailAndPassword,
   createGeneration,
