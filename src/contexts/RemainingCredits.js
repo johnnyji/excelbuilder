@@ -1,5 +1,8 @@
-import React, { useEffect, useContext, useState } from "react";
+import React, { useCallback, useEffect, useContext, useState } from "react";
+import { usePrevious } from "react-use";
 import moment from "moment";
+import { useSnackbar } from "notistack";
+import { v4 as uuidv4 } from "uuid";
 
 import { UserContext } from "./User";
 
@@ -10,17 +13,51 @@ import { db } from "../firebase";
 import FullPageError from "../components/ui/FullPageError";
 import FullPageSpinner from "../components/ui/FullPageSpinner";
 
+const initialRetriggerId = uuidv4();
+
 export const RemainingCreditsContext = React.createContext();
 
 export default function RemainingCredits({ children }) {
   const user = useContext(UserContext);
+  const { enqueueSnackbar } = useSnackbar();
   const [loading, setLoading] = useState(true);
+  const [loaded, setLoaded] = useState(false);
   const [error, setError] = useState(null);
+  const [retriggerId, setRetriggerId] = useState(initialRetriggerId);
   const [remainingCredits, setRemainingCredits] = useState(-1);
+  const prevRemainingCredits = usePrevious(remainingCredits);
+
+  useEffect(() => {
+    if (
+      prevRemainingCredits > 0 &&
+      remainingCredits === 0 &&
+      user.subscriptionPlanKey === "STARTER"
+    ) {
+      enqueueSnackbar(
+        "You're out of credits for the month. Please upgrade your plan tohave unlimited credits!",
+        {
+          preventDuplicate: true,
+          variant: "error"
+        }
+      );
+    }
+  }, [
+    enqueueSnackbar,
+    prevRemainingCredits,
+    remainingCredits,
+    user.subscriptionPlanKey
+  ]);
 
   useEffect(() => {
     if (user.uid && user.subscriptionPlanKey === "STARTER") {
-      setLoading(true);
+      // We trigger this everytime the user generates an OpenAI completion
+      // in order to deduct credits in the UI, on secondary generations
+      // the credits are already loaded, so no need to distrupt the user with
+      // a loading spinner
+      if (!loaded) {
+        setLoading(true);
+      }
+
       setError(null);
 
       const periodCurrent = moment()
@@ -42,6 +79,7 @@ export default function RemainingCredits({ children }) {
           const remaining = 7 - resp.docs.length;
           setLoading(false);
           setRemainingCredits(remaining < 0 ? 0 : remaining);
+          setLoaded(true);
         })
         .catch(_ => {
           setError(
@@ -51,14 +89,28 @@ export default function RemainingCredits({ children }) {
     } else {
       setLoading(false);
     }
-  }, [setLoading, setError, user.uid, user.subscriptionPlanKey]);
+  }, [
+    loaded,
+    retriggerId,
+    setLoaded,
+    setLoading,
+    setError,
+    user.uid,
+    user.subscriptionPlanKey
+  ]);
+
+  const updateRemainingCredits = useCallback(() => {
+    setRetriggerId(uuidv4());
+  }, [setRetriggerId]);
 
   if (loading) return <FullPageSpinner />;
 
   if (error) return <FullPageError />;
 
+  const value = { remainingCredits, updateRemainingCredits };
+
   return (
-    <RemainingCreditsContext.Provider value={remainingCredits}>
+    <RemainingCreditsContext.Provider value={value}>
       {children}
     </RemainingCreditsContext.Provider>
   );

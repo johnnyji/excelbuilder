@@ -1,9 +1,12 @@
 import React, { useCallback, useContext, useEffect, useState } from "react";
+import { Link } from "react-router-dom";
+import { useLocalStorage } from "react-use";
+import { useSnackbar } from "notistack";
 import {
+  Alert,
   Button,
   ButtonGroup,
   Paper,
-  FormHelperText,
   TextField,
   Typography
 } from "@mui/material";
@@ -16,7 +19,9 @@ import openai from "../../openai";
 import RemainingCreditsBanner from "../shared/RemainingCreditsBanner";
 
 import DashboardWrapper from "../ui/DashboardWrapper";
+import Emoji from "../ui/Emoji";
 
+import { RemainingCreditsContext } from "../../contexts/RemainingCredits";
 import { UserContext } from "../../contexts/User";
 
 const styles = {
@@ -49,17 +54,19 @@ const getSystemWording = system => {
 
 export default function Generator() {
   const user = useContext(UserContext);
+  const { enqueueSnackbar } = useSnackbar();
   const [genStatus, setGenStatus] = useState("IDLE");
-  const [system, setSystem] = useState("EXCEL");
-  const [result, setResult] = useState("");
-  const [resultCopied, setResultCopied] = useState(false);
-  const [prompt, setPrompt] = useState("");
+  const [system, setSystem] = useLocalStorage("ebExplainerSystem", "EXCEL");
+  const [result, setResult] = useLocalStorage("ebExplainerResult", "");
+  const [prompt, setPrompt] = useLocalStorage("ebExplainerPrompt", "");
   const [promptError, setPromptError] = useState(null);
+  const { remainingCredits, updateRemainingCredits } = useContext(
+    RemainingCreditsContext
+  );
+  const outOfCredits = remainingCredits === 0;
 
   useEffect(() => {
     if (genStatus === "GENERATING") {
-      setResultCopied(false);
-
       openai
         .createCompletion({
           model: "text-davinci-003",
@@ -77,6 +84,10 @@ export default function Generator() {
           if (result) {
             setResult(result.text);
             createGeneration(user, prompt, result);
+            updateRemainingCredits();
+            enqueueSnackbar("Woohoo! Explanation generated ✅", {
+              variant: "success"
+            });
             setGenStatus("DONE");
           } else {
             setGenStatus("ERROR");
@@ -86,7 +97,16 @@ export default function Generator() {
           setGenStatus("ERROR");
         });
     }
-  }, [genStatus, setGenStatus, prompt, user, system]);
+  }, [
+    enqueueSnackbar,
+    genStatus,
+    setGenStatus,
+    setResult,
+    prompt,
+    updateRemainingCredits,
+    user,
+    system
+  ]);
 
   const handleGenerate = useCallback(() => {
     if (prompt.length === 0) {
@@ -164,7 +184,7 @@ export default function Generator() {
         />
         <Button
           color="primary"
-          disabled={generating}
+          disabled={generating || outOfCredits || user.paymentDelinquent}
           onClick={handleGenerate}
           variant="contained"
           style={styles.generateButton}
@@ -172,6 +192,20 @@ export default function Generator() {
         >
           {generating ? "Explaining..." : "Explain"}
         </Button>
+        {user.paymentDelinquent && (
+          <Alert severity="error">
+            Your subscription seems to have a payment issue, please resolve that{" "}
+            <Link to="/billing">in your billing page</Link> first{" "}
+            <Emoji symbol="🙏" />
+          </Alert>
+        )}
+        {outOfCredits && (
+          <Alert severity="error">
+            You're out of credits for the month <Emoji symbol="😢" /> Credits
+            reset on the 1st of every month. If you would like unlimited
+            credits, you can <Link to="/billing">upgrade your plan here!</Link>
+          </Alert>
+        )}
         {result && (
           <>
             <Typography variant="h4" gutterBottom>
@@ -182,9 +216,6 @@ export default function Generator() {
                 <code>{result}</code>
               </Paper>
             </CopyToClipboard>
-            {resultCopied && (
-              <FormHelperText>Copied to clipboard!</FormHelperText>
-            )}
           </>
         )}
       </div>

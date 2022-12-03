@@ -7,7 +7,7 @@ import { UserContext } from "../../contexts/User";
 
 export default function RemainingCreditsBanner() {
   const user = useContext(UserContext);
-  const remainingCredits = useContext(RemainingCreditsContext);
+  const { remainingCredits } = useContext(RemainingCreditsContext);
 
   if (user.subscriptionPlanKey !== "STARTER") return null;
 

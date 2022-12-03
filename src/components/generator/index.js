@@ -1,6 +1,6 @@
 import React, { useCallback, useContext, useEffect, useState } from "react";
 import { Link, useSearchParams } from "react-router-dom";
-import { useWindowSize } from "react-use";
+import { useLocalStorage, useWindowSize } from "react-use";
 import { useSnackbar } from "notistack";
 import Confetti from "react-confetti";
 
@@ -9,9 +9,8 @@ import {
   Button,
   ButtonGroup,
   Paper,
-  FormHelperText,
   TextField,
-  Typography,
+  Typography
 } from "@mui/material";
 
 import CopyToClipboard from "react-copy-to-clipboard";
@@ -31,11 +30,11 @@ const styles = {
   generator: {
     marginTop: "16px",
     display: "flex",
-    flexDirection: "column",
+    flexDirection: "column"
   },
   generateButton: {
     marginTop: "16px",
-    marginBottom: "16px",
+    marginBottom: "16px"
   },
   result: {
     background: "#F7F7F7",
@@ -43,43 +42,33 @@ const styles = {
     padding: "16px",
     "&:hover": {
       background: "#FFF",
-      cursor: "pointer",
-    },
-  },
+      cursor: "pointer"
+    }
+  }
 };
 
-const getSystemWording = (system) => {
+const getSystemWording = system => {
   if (system === "EXCEL") return "an Excel";
   if (system === "SHEETS") return "a Google Sheets";
   if (system === "AIRTABLE") return "an Airtable";
 };
 
-// Take first name of name column, add a "@gmail.com" to the end and put that into the email column
-
-// TODO:
-// 1. Create an LastGenerationContext to store the most recent generation, wrap it over
-// the RemainingCreditsContext
-//
-// 2. Everytime we update LastGenerationContext, the RemainingCredits context will
-// update and decrease credits
-//
-// 3. Seed LastGenerationContext or refresh it when user hits generate
-//
-// 4. Clean up billing page UI for starter plan
 export default function Generator() {
   const { enqueueSnackbar } = useSnackbar();
   const { width: windowWidth, height: windowHeight } = useWindowSize();
   const [isConfettiExploding, setIsConfettiExploding] = useState(false);
   const user = useContext(UserContext);
   const [genStatus, setGenStatus] = useState("IDLE");
-  const [system, setSystem] = useState("EXCEL");
-  const [result, setResult] = useState("");
-  const [prompt, setPrompt] = useState("");
+  const [system, setSystem] = useLocalStorage("ebBuilderSystem", "EXCEL");
+  const [result, setResult] = useLocalStorage("ebBuilderResult", "");
+  const [prompt, setPrompt] = useLocalStorage("ebBuilderPrompt", "");
   const [promptError, setPromptError] = useState(null);
 
   const [searchParams, setSearchParams] = useSearchParams();
   const postBillingRedirect = searchParams.get("billing_redirect");
-  const remainingCredits = useContext(RemainingCreditsContext);
+  const { remainingCredits, updateRemainingCredits } = useContext(
+    RemainingCreditsContext
+  );
   const outOfCredits = remainingCredits === 0;
 
   useEffect(() => {
@@ -88,7 +77,7 @@ export default function Generator() {
       setSearchParams(searchParams.delete("billing_redirect"));
       enqueueSnackbar("Your plan was successfully changed!", {
         preventDuplicate: true,
-        variant: "success",
+        variant: "success"
       });
     }
 
@@ -103,19 +92,23 @@ export default function Generator() {
           max_tokens: 1000,
           top_p: 1,
           frequency_penalty: 0,
-          presence_penalty: 0,
+          presence_penalty: 0
         })
-        .then((resp) => {
+        .then(resp => {
           const result = resp.data.choices[0];
           if (result) {
             setResult(result.text);
             createGeneration(user, prompt, result);
+            updateRemainingCredits();
+            enqueueSnackbar("Woohoo! Formula generated ✅", {
+              variant: "success"
+            });
             setGenStatus("DONE");
           } else {
             setGenStatus("ERROR");
           }
         })
-        .catch((_) => {
+        .catch(_ => {
           setGenStatus("ERROR");
         });
     }
@@ -124,11 +117,13 @@ export default function Generator() {
     genStatus,
     postBillingRedirect,
     prompt,
+    setResult,
     searchParams,
     setGenStatus,
     setSearchParams,
     system,
-    user,
+    updateRemainingCredits,
+    user
   ]);
 
   const handleGenerate = useCallback(() => {
@@ -142,14 +137,14 @@ export default function Generator() {
   }, [prompt, setGenStatus, setPromptError]);
 
   const handleSetPrompt = useCallback(
-    (e) => {
+    e => {
       setPrompt(e.target.value);
     },
     [setPrompt]
   );
 
   const handleSetSystem = useCallback(
-    (e) => {
+    e => {
       setSystem(e.target.name);
     },
     [setSystem]
