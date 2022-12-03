@@ -144,6 +144,8 @@ export default function Billing() {
     [enqueueSnackbar, setBillingSessionLoading]
   );
 
+  const isStarterPlan = user.subscriptionPlanKey === "STARTER";
+
   const planList = [starterPlanProduct].concat(products).map(product => {
     const plan = plans[product.metadata.id];
     const priceId = product.prices[0].id;
@@ -151,6 +153,7 @@ export default function Billing() {
 
     let buttonText = "Select New Plan";
     if (isCurrentPlan) buttonText = "Manage My Plan";
+    if (isCurrentPlan && isStarterPlan) buttonText = "Current Plan";
 
     return (
       <Card key={plan.title} style={styles.card}>
@@ -162,6 +165,7 @@ export default function Billing() {
           </Grid>
           <Grid alignItems="center" direction="column" container item xs={12}>
             <Button
+              disabled={isCurrentPlan && isStarterPlan}
               name={priceId}
               onClick={handleSelectPlan}
               variant={isCurrentPlan ? "outlined" : "contained"}

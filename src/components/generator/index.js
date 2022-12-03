@@ -11,7 +11,7 @@ import {
   Paper,
   FormHelperText,
   TextField,
-  Typography
+  Typography,
 } from "@mui/material";
 
 import CopyToClipboard from "react-copy-to-clipboard";
@@ -31,23 +31,24 @@ const styles = {
   generator: {
     marginTop: "16px",
     display: "flex",
-    flexDirection: "column"
+    flexDirection: "column",
   },
   generateButton: {
     marginTop: "16px",
-    marginBottom: "16px"
+    marginBottom: "16px",
   },
   result: {
     background: "#F7F7F7",
+    wordBreak: "break-word",
     padding: "16px",
     "&:hover": {
       background: "#FFF",
-      cursor: "pointer"
-    }
-  }
+      cursor: "pointer",
+    },
+  },
 };
 
-const getSystemWording = system => {
+const getSystemWording = (system) => {
   if (system === "EXCEL") return "an Excel";
   if (system === "SHEETS") return "a Google Sheets";
   if (system === "AIRTABLE") return "an Airtable";
@@ -55,6 +56,16 @@ const getSystemWording = system => {
 
 // Take first name of name column, add a "@gmail.com" to the end and put that into the email column
 
+// TODO:
+// 1. Create an LastGenerationContext to store the most recent generation, wrap it over
+// the RemainingCreditsContext
+//
+// 2. Everytime we update LastGenerationContext, the RemainingCredits context will
+// update and decrease credits
+//
+// 3. Seed LastGenerationContext or refresh it when user hits generate
+//
+// 4. Clean up billing page UI for starter plan
 export default function Generator() {
   const { enqueueSnackbar } = useSnackbar();
   const { width: windowWidth, height: windowHeight } = useWindowSize();
@@ -63,7 +74,6 @@ export default function Generator() {
   const [genStatus, setGenStatus] = useState("IDLE");
   const [system, setSystem] = useState("EXCEL");
   const [result, setResult] = useState("");
-  const [resultCopied, setResultCopied] = useState(false);
   const [prompt, setPrompt] = useState("");
   const [promptError, setPromptError] = useState(null);
 
@@ -78,13 +88,11 @@ export default function Generator() {
       setSearchParams(searchParams.delete("billing_redirect"));
       enqueueSnackbar("Your plan was successfully changed!", {
         preventDuplicate: true,
-        variant: "success"
+        variant: "success",
       });
     }
 
     if (genStatus === "GENERATING") {
-      setResultCopied(false);
-
       openai
         .createCompletion({
           model: "text-davinci-003",
@@ -95,9 +103,9 @@ export default function Generator() {
           max_tokens: 1000,
           top_p: 1,
           frequency_penalty: 0,
-          presence_penalty: 0
+          presence_penalty: 0,
         })
-        .then(resp => {
+        .then((resp) => {
           const result = resp.data.choices[0];
           if (result) {
             setResult(result.text);
@@ -107,7 +115,7 @@ export default function Generator() {
             setGenStatus("ERROR");
           }
         })
-        .catch(_ => {
+        .catch((_) => {
           setGenStatus("ERROR");
         });
     }
@@ -120,7 +128,7 @@ export default function Generator() {
     setGenStatus,
     setSearchParams,
     system,
-    user
+    user,
   ]);
 
   const handleGenerate = useCallback(() => {
@@ -134,14 +142,14 @@ export default function Generator() {
   }, [prompt, setGenStatus, setPromptError]);
 
   const handleSetPrompt = useCallback(
-    e => {
+    (e) => {
       setPrompt(e.target.value);
     },
     [setPrompt]
   );
 
   const handleSetSystem = useCallback(
-    e => {
+    (e) => {
       setSystem(e.target.name);
     },
     [setSystem]
@@ -249,9 +257,6 @@ export default function Generator() {
                 <code>{result}</code>
               </Paper>
             </CopyToClipboard>
-            {resultCopied && (
-              <FormHelperText>Copied to clipboard!</FormHelperText>
-            )}
           </>
         )}
       </div>

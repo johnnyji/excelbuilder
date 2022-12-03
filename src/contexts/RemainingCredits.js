@@ -19,7 +19,7 @@ export default function RemainingCredits({ children }) {
   const [remainingCredits, setRemainingCredits] = useState(-1);
 
   useEffect(() => {
-    if (user.uid && user.subscriptionTier === "STARTER") {
+    if (user.uid && user.subscriptionPlanKey === "STARTER") {
       setLoading(true);
       setError(null);
 
@@ -51,7 +51,7 @@ export default function RemainingCredits({ children }) {
     } else {
       setLoading(false);
     }
-  }, [setLoading, setError, user.uid, user.subscriptionTier]);
+  }, [setLoading, setError, user.uid, user.subscriptionPlanKey]);
 
   if (loading) return <FullPageSpinner />;
 
