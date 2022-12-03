@@ -3,15 +3,18 @@ import { Outlet, useNavigate, useLocation } from "react-router-dom";
 import {
   Avatar,
   Box,
+  Chip,
   Divider,
   Drawer,
+  Grid,
   List,
   ListItem,
+  ListItemAvatar,
   ListItemButton,
   ListItemIcon,
   ListItemText,
   Toolbar,
-  Typography
+  Typography,
 } from "@mui/material";
 
 import BillingIcon from "@mui/icons-material/CreditCard";
@@ -33,21 +36,21 @@ export default function Dashboard({ children }) {
   const user = useContext(UserContext);
 
   const handleNavGenerator = useCallback(
-    e => {
+    (e) => {
       navigate("/");
     },
     [navigate]
   );
 
   const handleNavExplainer = useCallback(
-    e => {
+    (e) => {
       navigate("/explainer");
     },
     [navigate]
   );
 
   const handleNavBilling = useCallback(
-    e => {
+    (e) => {
       navigate("/billing");
     },
     [navigate]
@@ -67,31 +70,54 @@ export default function Dashboard({ children }) {
             flexShrink: 0,
             "& .MuiDrawer-paper": {
               width: drawerWidth,
-              boxSizing: "border-box"
-            }
+              boxSizing: "border-box",
+            },
           }}
           variant="permanent"
           anchor="left"
         >
-          <Toolbar>
-            <Avatar src={user.photoURL} />
-            <Typography variant="subtitle">{user.displayName}</Typography>
-          </Toolbar>
+          <Box mb={2} mt={2}>
+            <ListItem>
+              <ListItemIcon>
+                <Avatar
+                  src={user.photoURL}
+                  style={{ height: 24, width: 24, marginRight: 16 }}
+                />
+              </ListItemIcon>
+              <ListItemText
+                primary={
+                  <Typography
+                    variant="subtitle1"
+                    style={{
+                      whiteSpace: "nowrap",
+                      overflow: "hidden",
+                      textOverflow: "ellipsis",
+                    }}
+                  >
+                    <b>{user.name}</b>
+                  </Typography>
+                }
+              />
+            </ListItem>
+          </Box>
           <Divider />
           <List>
-            <ListItem disablePadding selected={location.pathname === "/"}>
-              <ListItemButton onClick={handleNavGenerator}>
+            <ListItem disablePadding>
+              <ListItemButton
+                onClick={handleNavGenerator}
+                selected={location.pathname === "/"}
+              >
                 <ListItemIcon>
                   <GeneratorIcon />
                 </ListItemIcon>
                 <ListItemText primary="Builder" />
               </ListItemButton>
             </ListItem>
-            <ListItem
-              disablePadding
-              selected={location.pathname === "/explainer"}
-            >
-              <ListItemButton onClick={handleNavExplainer}>
+            <ListItem disablePadding>
+              <ListItemButton
+                onClick={handleNavExplainer}
+                selected={location.pathname === "/explainer"}
+              >
                 <ListItemIcon>
                   <ExplainerIcon />
                 </ListItemIcon>
@@ -101,11 +127,11 @@ export default function Dashboard({ children }) {
           </List>
           <Divider />
           <List>
-            <ListItem
-              disablePadding
-              selected={location.pathname === "/billing"}
-            >
-              <ListItemButton onClick={handleNavBilling}>
+            <ListItem disablePadding>
+              <ListItemButton
+                onClick={handleNavBilling}
+                selected={location.pathname === "/billing"}
+              >
                 <ListItemIcon>
                   <BillingIcon />
                 </ListItemIcon>

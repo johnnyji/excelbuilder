@@ -48,11 +48,15 @@ const plans = {
   },
   PREMIUM: {
     title: "Premium",
-    values: ["7 explains/builds per month"]
+    values: ["Unlimited explains/builds!", "Priority email support"]
   },
   PREMIUM_Y: {
     title: "Premium (Yearly)",
-    values: ["7 explains/builds per month"]
+    values: [
+      "Unlimited explains/builds!",
+      "Priority email support",
+      "25% cheaper than monthly plan"
+    ]
   }
 };
 
