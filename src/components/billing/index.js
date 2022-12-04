@@ -28,6 +28,8 @@ import { UserContext } from "../../contexts/User";
 
 import useStripeProducts from "../../hooks/useStripeProducts";
 
+import { subscriptionPlanKey } from "../../config/billing";
+
 import DashboardError from "../ui/DashboardError";
 import DashboardWrapper from "../ui/DashboardWrapper";
 import Emoji from "../ui/Emoji";
@@ -52,11 +54,11 @@ const freeUserEmails = [
 // on the respective Stripe products of  in order for the following module work
 const plans = {
   STARTER: {
-    title: "Starter",
+    title: subscriptionPlanKey.STARTER,
     values: ["7 explains/builds per month"],
   },
   PREMIUM: {
-    title: "Premium",
+    title: subscriptionPlanKey.PREMIUM,
     values: ["Unlimited explains/builds", "Priority email support"],
   },
   PREMIUM_Y: {
@@ -74,7 +76,7 @@ const plans = {
 // We define this here as a dummy product because this isn't actually a product in Stripe
 const starterPlanProduct = {
   metadata: {
-    id: "STARTER",
+    id: subscriptionPlanKey.STARTER,
   },
   prices: [{ id: null, unit_amount: 0 }],
 };
@@ -160,7 +162,7 @@ export default function Billing() {
     [enqueueSnackbar, setBillingSessionLoading, user.email]
   );
 
-  const isStarterPlan = user.subscriptionPlanKey === "STARTER";
+  const isStarterPlan = user.subscriptionPlanKey === subscriptionPlanKey.STARTER;
 
   const fullProducts = [starterPlanProduct].concat(products);
 
@@ -336,7 +338,7 @@ export default function Billing() {
         justifyContent="center"
         alignItems="stretch"
       >
-        {user.subscriptionPlanKey === "STARTER" ? planList : managePlan}
+        {user.subscriptionPlanKey === subscriptionPlanKey.STARTER ? planList : managePlan}
       </Grid>
     </DashboardWrapper>
   );

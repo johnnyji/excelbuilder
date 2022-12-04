@@ -4,12 +4,13 @@ import { Link } from "react-router-dom";
 
 import { RemainingCreditsContext } from "../../contexts/RemainingCredits";
 import { UserContext } from "../../contexts/User";
+import { subscriptionPlanKey } from "../../config/billing";
 
 export default function RemainingCreditsBanner() {
   const user = useContext(UserContext);
   const { remainingCredits } = useContext(RemainingCreditsContext);
 
-  if (user.subscriptionPlanKey !== "STARTER") return null;
+  if (user.subscriptionPlanKey !== subscriptionPlanKey.STARTER) return null;
 
   return (
     <Box mb={2}>

@@ -8,7 +8,7 @@ import {
   ButtonGroup,
   Paper,
   TextField,
-  Typography
+  Typography,
 } from "@mui/material";
 
 import CopyToClipboard from "react-copy-to-clipboard";
@@ -17,6 +17,7 @@ import { createGeneration } from "../../firebase";
 import openai from "../../openai";
 
 import RemainingCreditsBanner from "../shared/RemainingCreditsBanner";
+import TutorialBanner from "../shared/TutorialBanner";
 
 import DashboardWrapper from "../ui/DashboardWrapper";
 import Emoji from "../ui/Emoji";
@@ -28,23 +29,23 @@ const styles = {
   generator: {
     marginTop: "16px",
     display: "flex",
-    flexDirection: "column"
+    flexDirection: "column",
   },
   generateButton: {
     marginTop: "16px",
-    marginBottom: "16px"
+    marginBottom: "16px",
   },
   result: {
     background: "#F7F7F7",
     padding: "16px",
     "&:hover": {
       background: "#FFF",
-      cursor: "pointer"
-    }
-  }
+      cursor: "pointer",
+    },
+  },
 };
 
-const getSystemWording = system => {
+const getSystemWording = (system) => {
   if (system === "EXCEL") return "Excel formula";
   if (system === "SHEETS") return "Google Sheets formula";
   if (system === "AIRTABLE") return "Airtable formula";
@@ -77,23 +78,23 @@ export default function Generator() {
           max_tokens: 1000,
           top_p: 1,
           frequency_penalty: 0,
-          presence_penalty: 0
+          presence_penalty: 0,
         })
-        .then(resp => {
+        .then((resp) => {
           const result = resp.data.choices[0];
           if (result) {
             setResult(result.text);
             createGeneration(user, prompt, result);
             updateRemainingCredits();
             enqueueSnackbar("Woohoo! Explanation generated ✅", {
-              variant: "success"
+              variant: "success",
             });
             setGenStatus("DONE");
           } else {
             setGenStatus("ERROR");
           }
         })
-        .catch(_ => {
+        .catch((_) => {
           setGenStatus("ERROR");
         });
     }
@@ -105,7 +106,7 @@ export default function Generator() {
     prompt,
     updateRemainingCredits,
     user,
-    system
+    system,
   ]);
 
   const handleGenerate = useCallback(() => {
@@ -117,14 +118,14 @@ export default function Generator() {
   }, [prompt, setGenStatus, setPromptError]);
 
   const handleSetPrompt = useCallback(
-    e => {
+    (e) => {
       setPrompt(e.target.value);
     },
     [setPrompt]
   );
 
   const handleSetSystem = useCallback(
-    e => {
+    (e) => {
       setSystem(e.target.name);
     },
     [setSystem]
@@ -137,6 +138,7 @@ export default function Generator() {
       title="Explain Formula"
       subtitle="Paste a Excel/Sheets/Airtable formula you want explained to you in plain english 🎓"
     >
+      <TutorialBanner />
       <RemainingCreditsBanner />
 
       <Typography variant="subtitle1" gutterBottom>

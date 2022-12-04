@@ -10,6 +10,8 @@ import { query, getDocs, collection, where } from "firebase/firestore";
 
 import { db } from "../firebase";
 
+import { subscriptionPlanKey } from "../config/billing";
+
 import FullPageError from "../components/ui/FullPageError";
 import FullPageSpinner from "../components/ui/FullPageSpinner";
 
@@ -31,7 +33,7 @@ export default function RemainingCredits({ children }) {
     if (
       prevRemainingCredits > 0 &&
       remainingCredits === 0 &&
-      user.subscriptionPlanKey === "STARTER"
+      user.subscriptionPlanKey === subscriptionPlanKey.STARTER
     ) {
       enqueueSnackbar(
         "You're out of credits for the month. Please upgrade your plan tohave unlimited credits!",
@@ -49,7 +51,7 @@ export default function RemainingCredits({ children }) {
   ]);
 
   useEffect(() => {
-    if (user.uid && user.subscriptionPlanKey === "STARTER") {
+    if (user.uid && user.subscriptionPlanKey === subscriptionPlanKey.STARTER) {
       // We trigger this everytime the user generates an OpenAI completion
       // in order to deduct credits in the UI, on secondary generations
       // the credits are already loaded, so no need to distrupt the user with

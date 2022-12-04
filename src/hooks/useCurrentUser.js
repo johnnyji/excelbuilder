@@ -5,19 +5,21 @@ import { useCollectionData } from "react-firebase-hooks/firestore";
 
 import {
   getCurrentUserSubscriptions,
-  getProduct,
+  getProduct
 } from "@stripe/firestore-stripe-payments";
 
 import { stripePayments } from "../firebase";
 
 import { auth, db } from "../firebase";
 
+// import { subscriptionPlanKey } from "../config/billing";
+
 // https://mrcoles.com/stripe-api-subscription-status/
 const paymentDelinquentStatuses = [
   "incomplete",
   "incomplete_expired",
   "past_due",
-  "unpaid",
+  "unpaid"
 ];
 
 export default function useCurrentUser() {
@@ -39,6 +41,7 @@ export default function useCurrentUser() {
   const [subLoading, setSubLoading] = useState(false);
   const [subError, setSubError] = useState(null);
   const [sub, setSub] = useState(null);
+  // TODO(Billing): Change this back to subscriptionPlanKey.STARTER when we enable billing
   const [subKey, setSubKey] = useState("STARTER");
 
   useEffect(() => {
@@ -64,6 +67,7 @@ export default function useCurrentUser() {
             : Promise.resolve(null));
 
           setSub(subscription ?? null);
+          // TODO(Billing): Change this back to subscriptionPlanKey.STARTER when we enable billing
           setSubKey(product?.metadata?.id ?? "STARTER");
           setSubLoading(false);
         } catch (e) {
@@ -90,7 +94,7 @@ export default function useCurrentUser() {
         photoURL: authUser?.photoURL ?? null,
         subscriptionPlan: sub,
         subscriptionPlanKey: subKey,
-        paymentDelinquent: paymentDelinquentStatuses.includes(sub?.status),
+        paymentDelinquent: paymentDelinquentStatuses.includes(sub?.status)
       }
     : null;
   return [currentUser, isLoading, isError];

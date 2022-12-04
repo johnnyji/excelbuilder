@@ -19,6 +19,7 @@ import { createGeneration } from "../../firebase";
 import openai from "../../openai";
 
 import RemainingCreditsBanner from "../shared/RemainingCreditsBanner";
+import TutorialBanner from "../shared/TutorialBanner";
 
 import DashboardWrapper from "../ui/DashboardWrapper";
 import Emoji from "../ui/Emoji";
@@ -170,6 +171,7 @@ export default function Generator() {
         />
       )}
 
+      <TutorialBanner />
       <RemainingCreditsBanner />
 
       <Typography variant="subtitle1" gutterBottom>

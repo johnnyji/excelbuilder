@@ -10,10 +10,11 @@ import {
   ListItemButton,
   ListItemIcon,
   ListItemText,
-  Typography
+  Typography,
 } from "@mui/material";
 
-import BillingIcon from "@mui/icons-material/CreditCard";
+// TODO(Billing): Change this back when we enable billing
+// import BillingIcon from "@mui/icons-material/CreditCard";
 import LogoutIcon from "@mui/icons-material/Logout";
 import ExplainerIcon from "@mui/icons-material/Plagiarism";
 import GeneratorIcon from "@mui/icons-material/Superscript";
@@ -32,25 +33,26 @@ export default function Dashboard({ children }) {
   const user = useContext(UserContext);
 
   const handleNavGenerator = useCallback(
-    e => {
+    (e) => {
       navigate("/");
     },
     [navigate]
   );
 
   const handleNavExplainer = useCallback(
-    e => {
+    (e) => {
       navigate("/explainer");
     },
     [navigate]
   );
 
-  const handleNavBilling = useCallback(
-    e => {
-      navigate("/billing");
-    },
-    [navigate]
-  );
+  // TODO(Billing): Change this back when we enable billing
+  // const handleNavBilling = useCallback(
+  //   e => {
+  //     navigate("/billing");
+  //   },
+  //   [navigate]
+  // );
 
   const handleLogout = useCallback(() => {
     navigate("/signin");
@@ -66,8 +68,8 @@ export default function Dashboard({ children }) {
             flexShrink: 0,
             "& .MuiDrawer-paper": {
               width: drawerWidth,
-              boxSizing: "border-box"
-            }
+              boxSizing: "border-box",
+            },
           }}
           variant="permanent"
           anchor="left"
@@ -87,7 +89,7 @@ export default function Dashboard({ children }) {
                     style={{
                       whiteSpace: "nowrap",
                       overflow: "hidden",
-                      textOverflow: "ellipsis"
+                      textOverflow: "ellipsis",
                     }}
                   >
                     <b>{user.name}</b>
@@ -123,17 +125,20 @@ export default function Dashboard({ children }) {
           </List>
           <Divider />
           <List>
-            <ListItem disablePadding>
-              <ListItemButton
-                onClick={handleNavBilling}
-                selected={location.pathname === "/billing"}
-              >
-                <ListItemIcon>
-                  <BillingIcon />
-                </ListItemIcon>
-                <ListItemText primary="Billing" />
-              </ListItemButton>
-            </ListItem>
+            {/* TODO(Billing): Change this back when we enable billing */}
+            {/*
+              <ListItem disablePadding>
+                <ListItemButton
+                  onClick={handleNavBilling}
+                  selected={location.pathname === "/billing"}
+                >
+                  <ListItemIcon>
+                    <BillingIcon />
+                  </ListItemIcon>
+                  <ListItemText primary="Billing" />
+                </ListItemButton>
+              </ListItem>
+            */}
             <ListItem disablePadding>
               <ListItemButton onClick={handleLogout}>
                 <ListItemIcon>
