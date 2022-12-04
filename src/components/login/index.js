@@ -13,7 +13,7 @@ export default function Login() {
         display: "flex",
         height: "100vh",
         justifyContent: "center",
-        width: "100vw",
+        width: "100vw"
       }}
     >
       <Paper
@@ -25,7 +25,7 @@ export default function Login() {
           display: "flex",
           flexDirection: "column",
           alignItems: "center",
-          maxWidth: 500,
+          maxWidth: 500
         }}
         variant="outlined"
       >
