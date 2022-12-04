@@ -3,6 +3,7 @@ import { useSearchParams } from "react-router-dom";
 import { useSnackbar } from "notistack";
 
 import { httpsCallable } from "firebase/functions";
+import accounting from "accounting-js";
 import moment from "moment";
 
 import {
@@ -10,12 +11,13 @@ import {
   Box,
   Button,
   Card,
+  Chip,
   Grid,
   List,
   ListItem,
   ListItemText,
   ListItemIcon,
-  Typography
+  Typography,
 } from "@mui/material";
 
 import { createCheckoutSession } from "@stripe/firestore-stripe-payments";
@@ -35,14 +37,15 @@ const styles = {
   card: {
     margin: 16,
     padding: 16,
-    width: 350
-  }
+    width: 350,
+  },
 };
 
 const freeUserEmails = [
+  "excelbuilderapp@gmail.com",
   "johnny@johnnyji.com",
   "johnny@distru.com",
-  "jesse@distru.com"
+  "jesse@distru.com",
 ];
 
 // PREMIUM / PREMIUM_Y must be set as a metadata item of `id=PREMIUM(_Y)`
@@ -50,28 +53,30 @@ const freeUserEmails = [
 const plans = {
   STARTER: {
     title: "Starter",
-    values: ["7 explains/builds per month"]
+    values: ["7 explains/builds per month"],
   },
   PREMIUM: {
     title: "Premium",
-    values: ["Unlimited explains/builds!", "Priority email support"]
+    values: ["Unlimited explains/builds", "Priority email support"],
   },
   PREMIUM_Y: {
     title: "Premium (Yearly)",
     values: [
-      "Unlimited explains/builds!",
+      "Unlimited explains/builds",
       "Priority email support",
-      "25% cheaper than monthly plan"
-    ]
-  }
+      <>
+        <b>25% cheaper</b> than monthly!
+      </>,
+    ],
+  },
 };
 
 // We define this here as a dummy product because this isn't actually a product in Stripe
 const starterPlanProduct = {
   metadata: {
-    id: "STARTER"
+    id: "STARTER",
   },
-  prices: [{ id: null }]
+  prices: [{ id: null, unit_amount: 0 }],
 };
 
 export default function Billing() {
@@ -80,7 +85,7 @@ export default function Billing() {
   const {
     isLoading: productsLoading,
     isError: productsError,
-    data: products
+    data: products,
   } = useStripeProducts();
   const [billingSessionLoading, setBillingSessionLoading] = useState(false);
   const [searchParams, setSearchParams] = useSearchParams();
@@ -95,7 +100,7 @@ export default function Billing() {
       setSearchParams(searchParams.delete("billing_redirect"));
       enqueueSnackbar("Oops, your payment did not go through.", {
         preventDuplicate: true,
-        variant: "error"
+        variant: "error",
       });
     }
   }, [
@@ -103,7 +108,7 @@ export default function Billing() {
     enqueueSnackbar,
     postBillingRedirect,
     searchParams,
-    setSearchParams
+    setSearchParams,
   ]);
 
   const handleManagePlan = useCallback(() => {
@@ -114,12 +119,12 @@ export default function Billing() {
     );
 
     stripeCustomerPortalRef({
-      returnUrl: `${window.location.origin}/billing`
+      returnUrl: `${window.location.origin}/billing`,
     })
       .then(({ data }) => {
         window.location.assign(data.url);
       })
-      .catch(_ => {
+      .catch((_) => {
         setBillingSessionLoading(false);
         enqueueSnackbar(
           `Error contacting payment processor Stripe to manage your subscription. Please try again later or contact ${process.env.REACT_APP_SUPPORT_EMAIL} for support!`,
@@ -131,7 +136,7 @@ export default function Billing() {
   }, [enqueueSnackbar, setBillingSessionLoading]);
 
   const handleSelectPlan = useCallback(
-    e => {
+    (e) => {
       setBillingSessionLoading(true);
       const priceId = e.target.getAttribute("name");
 
@@ -139,12 +144,12 @@ export default function Billing() {
         price: priceId,
         allow_promotion_codes: freeUserEmails.includes(user.email),
         success_url: `${window.location.origin}?billing_redirect=SUCCESS`,
-        cancel_url: `${window.location.origin}/billing?billing_redirect=CANCEL`
+        cancel_url: `${window.location.origin}/billing?billing_redirect=CANCEL`,
       })
-        .then(session => {
+        .then((session) => {
           window.location.assign(session.url);
         })
-        .catch(_ => {
+        .catch((_) => {
           setBillingSessionLoading(false);
           enqueueSnackbar(
             `Error contacting payment processor Stripe. Please try again later or contact ${process.env.REACT_APP_SUPPORT_EMAIL} for support!`,
@@ -157,29 +162,62 @@ export default function Billing() {
 
   const isStarterPlan = user.subscriptionPlanKey === "STARTER";
 
-  const planList = [starterPlanProduct].concat(products).map(product => {
+  const fullProducts = [starterPlanProduct].concat(products);
+
+  const currentProduct = fullProducts.find(
+    (x) => x.metadata.id === user.subscriptionPlanKey
+  );
+
+  const renderPlan = (product) => {
     const plan = plans[product.metadata.id];
-    const priceId = product.prices[0].id;
-    const isCurrentPlan = user.subscriptionPlanKey === product.metadata.id;
+    const price = product.prices[0];
+    const priceFormatted =
+      price.unit_amount === 0
+        ? "Free"
+        : accounting.formatMoney(price.unit_amount / 100, { precision: 2 });
+
+    const isCurrentProduct =
+      product.metadata.id === currentProduct?.metadata?.id;
 
     let buttonText = "Select New Plan";
-    if (isCurrentPlan) buttonText = "Manage My Plan";
-    if (isCurrentPlan && isStarterPlan) buttonText = "Current Plan";
+    if (isCurrentProduct) buttonText = "Manage My Plan";
+    if (isCurrentProduct && isStarterPlan) buttonText = "Current Plan";
 
     return (
       <Card key={plan.title} style={styles.card}>
         <Grid container directon="column" alignItems="center">
-          <Grid item xs={12}>
+          <Grid
+            alignItems="center"
+            container
+            direction="column"
+            item
+            mb={4}
+            mt={2}
+            xs={12}
+          >
             <Typography variant="h5" align="center" gutterBottom>
               <b>{plan.title}</b>
             </Typography>
+            <Chip
+              label={priceFormatted}
+              variant="outlined"
+              size="small"
+              color="success"
+            />
           </Grid>
-          <Grid alignItems="center" direction="column" container item xs={12}>
+          <Grid
+            alignItems="center"
+            direction="column"
+            container
+            item
+            xs={12}
+            mb={3}
+          >
             <Button
-              disabled={isCurrentPlan && isStarterPlan}
-              name={priceId}
+              disabled={isCurrentProduct && isStarterPlan}
+              name={price.id}
               onClick={handleSelectPlan}
-              variant={isCurrentPlan ? "outlined" : "contained"}
+              variant={isCurrentProduct ? "outlined" : "contained"}
             >
               {buttonText}
             </Button>
@@ -187,7 +225,7 @@ export default function Billing() {
           <Grid item xs={12}>
             <List>
               {plan.values.map((value, index) => (
-                <ListItem key={`${plan.title}-value-${index}`}>
+                <ListItem key={`${plan.title}-value-${index}`} dense={true}>
                   <ListItemIcon>
                     <Emoji symbol="✅ " />
                   </ListItemIcon>
@@ -199,46 +237,107 @@ export default function Billing() {
         </Grid>
       </Card>
     );
+  };
+
+  const planList = fullProducts.map((product) => {
+    return renderPlan(product, false);
   });
 
   const managePlan = (
-    <>
-      <Typography variant="h6" gutterBottom>
-        <b>Plan: {plans[user.subscriptionPlanKey].title}</b>
-      </Typography>
-      {user.subscriptionPlan?.cancel_at_period_end && (
-        <Box mb={2}>
-          <Alert severity="warning">
-            Your plan has been successfully canceled. Your current plan will
-            remain active until{" "}
-            <b>
-              {moment(user.subscriptionPlan.current_period_end).format(
-                "MMM Do YYYY"
-              )}
-            </b>
-            . We're sad to see you go <Emoji symbol="😭" />, if there is
-            anything we can do to help you stay, please email{" "}
-            {process.env.REACT_APP_SUPPORT_EMAIL}
-          </Alert>
-        </Box>
-      )}
-      <Button onClick={handleManagePlan} variant="contained">
-        {user.subscriptionPlan?.cancel_at_period_end
-          ? "Renew Plan"
-          : "Manage Plan"}
-      </Button>
-    </>
+    <Card style={styles.card}>
+      <Grid container directon="column" alignItems="center">
+        <Grid
+          alignItems="center"
+          container
+          direction="column"
+          item
+          mb={2}
+          mt={2}
+          xs={12}
+        >
+          <Typography variant="subtitle1" align="center">
+            Current Plan
+          </Typography>
+          <Typography variant="h4" align="center" gutterBottom>
+            <b>{plans[user.subscriptionPlanKey].title}</b>
+          </Typography>
+        </Grid>
+        <Grid
+          alignItems="center"
+          direction="column"
+          container
+          item
+          xs={12}
+          mb={3}
+        >
+          {user.subscriptionPlan?.cancel_at_period_end && (
+            <Box mb={4}>
+              <Alert severity="warning">
+                Your plan has been successfully canceled. Your current plan will
+                remain active until{" "}
+                <b>
+                  {moment(user.subscriptionPlan.current_period_end).format(
+                    "MMM Do YYYY"
+                  )}
+                </b>
+                . We're sad to see you go <Emoji symbol="😭" />, if there is
+                anything we can do to help you stay, please email{" "}
+                {process.env.REACT_APP_SUPPORT_EMAIL}
+              </Alert>
+            </Box>
+          )}
+          <Button onClick={handleManagePlan} variant="contained">
+            {user.subscriptionPlan?.cancel_at_period_end
+              ? "Renew Plan"
+              : "Manage Plan"}
+          </Button>
+        </Grid>
+        <Grid item xs={12}>
+          <List>
+            {plans[user.subscriptionPlanKey].values.map((value, index) => (
+              <ListItem
+                key={`${plans[user.subscriptionPlanKey].title}-value-${index}`}
+                dense={true}
+              >
+                <ListItemIcon>
+                  <Emoji symbol="✅ " />
+                </ListItemIcon>
+                <ListItemText primary={value} />
+              </ListItem>
+            ))}
+          </List>
+        </Grid>
+      </Grid>
+    </Card>
   );
+
+  if (productsLoading) {
+    return (
+      <DashboardWrapper title="Billing">
+        <FullPageSpinner />
+      </DashboardWrapper>
+    );
+  }
+
+  if (productsError) {
+    return (
+      <DashboardError
+        message={`There was an issue loading subscription plans. Please refresh the page to try again or contact ${process.env.REACT_APP_SUPPORT_EMAIL} for help.`}
+      />
+    );
+  }
 
   return (
     <DashboardWrapper title="Billing">
-      {(billingSessionLoading || productsLoading) && <FullPageSpinner />}
-      {productsError && (
-        <DashboardError
-          message={`There was an issue loading subscription plans. Please refresh the page to try again or contact ${process.env.REACT_APP_SUPPORT_EMAIL} for help.`}
-        />
-      )}
-      {user.subscriptionPlanKey === "STARTER" ? planList : managePlan}
+      {billingSessionLoading && <FullPageSpinner />}
+      <Grid
+        container
+        direction="row"
+        justifyContent="center"
+        alignItems="stretch"
+      >
+        {user.subscriptionPlanKey === "STARTER" ? planList : managePlan}
+      </Grid>
     </DashboardWrapper>
   );
 }

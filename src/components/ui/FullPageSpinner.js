@@ -2,24 +2,30 @@ import { CircularProgress } from "@mui/material";
 
 const styles = {
   wrapper: {
-    alignItems: "center",
     backgroundColor: "rgba(255, 255, 255, 0.5)",
-    display: "flex",
     height: "100vh",
-    justifyContent: "center",
     left: 0,
-    position: "absolute",
+    position: "fixed",
     top: 0,
     width: "100vw",
     // This will override the sidebar
     zIndex: 10000
+  },
+  content: {
+    display: "flex",
+    alignItems: "center",
+    justifyContent: "center",
+    height: "100%",
+    width: "100%"
   }
 };
 
 export default function FullPageSpinner() {
   return (
     <div style={styles.wrapper}>
-      <CircularProgress size={60} />
+      <div style={styles.content}>
+        <CircularProgress size={60} />
+      </div>
     </div>
   );
 }

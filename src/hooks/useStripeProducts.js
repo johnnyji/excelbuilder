@@ -6,7 +6,7 @@ export default function useStripeProducts() {
   return useQuery(
     "stripeProducts",
     () =>
-      getProducts(stripePayments, { includePrices: true, activeOnly: true }),
+      getProducts(stripePayments, { activeOnly: true, includePrices: true }),
     { initialData: [] }
   );
 }
