@@ -39,6 +39,12 @@ const styles = {
   }
 };
 
+const freeUserEmails = [
+  "johnny@johnnyji.com",
+  "johnny@distru.com",
+  "jesse@distru.com"
+];
+
 // PREMIUM / PREMIUM_Y must be set as a metadata item of `id=PREMIUM(_Y)`
 // on the respective Stripe products of  in order for the following module work
 const plans = {
@@ -131,6 +137,7 @@ export default function Billing() {
 
       createCheckoutSession(stripePayments, {
         price: priceId,
+        allow_promotion_codes: freeUserEmails.includes(user.email),
         success_url: `${window.location.origin}?billing_redirect=SUCCESS`,
         cancel_url: `${window.location.origin}/billing?billing_redirect=CANCEL`
       })
@@ -145,7 +152,7 @@ export default function Billing() {
           );
         });
     },
-    [enqueueSnackbar, setBillingSessionLoading]
+    [enqueueSnackbar, setBillingSessionLoading, user.email]
   );
 
   const isStarterPlan = user.subscriptionPlanKey === "STARTER";

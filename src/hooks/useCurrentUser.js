@@ -86,8 +86,8 @@ export default function useCurrentUser() {
   const currentUser = user
     ? {
         ...user,
-        name: authUser.displayName,
-        photoURL: authUser.photoURL,
+        name: authUser?.displayName ?? null,
+        photoURL: authUser?.photoURL ?? null,
         subscriptionPlan: sub,
         subscriptionPlanKey: subKey,
         paymentDelinquent: paymentDelinquentStatuses.includes(sub?.status),
