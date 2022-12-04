@@ -10,7 +10,7 @@ import {
   ListItemButton,
   ListItemIcon,
   ListItemText,
-  Typography,
+  Typography
 } from "@mui/material";
 
 import BillingIcon from "@mui/icons-material/CreditCard";
@@ -32,21 +32,21 @@ export default function Dashboard({ children }) {
   const user = useContext(UserContext);
 
   const handleNavGenerator = useCallback(
-    (e) => {
+    e => {
       navigate("/");
     },
     [navigate]
   );
 
   const handleNavExplainer = useCallback(
-    (e) => {
+    e => {
       navigate("/explainer");
     },
     [navigate]
   );
 
   const handleNavBilling = useCallback(
-    (e) => {
+    e => {
       navigate("/billing");
     },
     [navigate]
@@ -66,8 +66,8 @@ export default function Dashboard({ children }) {
             flexShrink: 0,
             "& .MuiDrawer-paper": {
               width: drawerWidth,
-              boxSizing: "border-box",
-            },
+              boxSizing: "border-box"
+            }
           }}
           variant="permanent"
           anchor="left"
@@ -87,7 +87,7 @@ export default function Dashboard({ children }) {
                     style={{
                       whiteSpace: "nowrap",
                       overflow: "hidden",
-                      textOverflow: "ellipsis",
+                      textOverflow: "ellipsis"
                     }}
                   >
                     <b>{user.name}</b>
@@ -144,10 +144,7 @@ export default function Dashboard({ children }) {
             </ListItem>
           </List>
         </Drawer>
-        <Box
-          component="main"
-          sx={{ flexGrow: 1, bgcolor: "background.default", p: 3 }}
-        >
+        <Box component="main" sx={{ flexGrow: 1, p: 3 }}>
           <Outlet />
         </Box>
       </Box>

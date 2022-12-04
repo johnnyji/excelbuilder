@@ -60,7 +60,6 @@ const signInWithGoogle = async () => {
       });
     }
   } catch (err) {
-    debugger;
     console.error(err);
     alert(err.message);
   }
