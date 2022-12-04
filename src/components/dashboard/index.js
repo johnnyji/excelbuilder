@@ -1,5 +1,6 @@
 import React, { useCallback, useContext } from "react";
 import { Outlet, useNavigate, useLocation } from "react-router-dom";
+import isMobile from "ismobilejs";
 import {
   Avatar,
   Box,
@@ -25,7 +26,8 @@ import { UserContext } from "../../contexts/User";
 
 import { logout } from "../../firebase";
 
-const drawerWidth = 240;
+const isPhone = isMobile().phone;
+const drawerWidth = isPhone ? 56 : 240;
 
 export default function Dashboard({ children }) {
   const location = useLocation();
@@ -108,7 +110,7 @@ export default function Dashboard({ children }) {
                 <ListItemIcon>
                   <GeneratorIcon />
                 </ListItemIcon>
-                <ListItemText primary="Builder" />
+                {!isPhone && <ListItemText primary="Builder" />}
               </ListItemButton>
             </ListItem>
             <ListItem disablePadding>
@@ -119,7 +121,7 @@ export default function Dashboard({ children }) {
                 <ListItemIcon>
                   <ExplainerIcon />
                 </ListItemIcon>
-                <ListItemText primary="Explainer" />
+                {!isPhone && <ListItemText primary="Explainer" />}
               </ListItemButton>
             </ListItem>
           </List>
@@ -135,7 +137,7 @@ export default function Dashboard({ children }) {
                   <ListItemIcon>
                     <BillingIcon />
                   </ListItemIcon>
-                  <ListItemText primary="Billing" />
+                  {!isPhone && <ListItemText primary="Billing" />}
                 </ListItemButton>
               </ListItem>
             */}
@@ -144,7 +146,7 @@ export default function Dashboard({ children }) {
                 <ListItemIcon>
                   <LogoutIcon />
                 </ListItemIcon>
-                <ListItemText primary="Logout" />
+                {!isPhone && <ListItemText primary="Logout" />}
               </ListItemButton>
             </ListItem>
           </List>
