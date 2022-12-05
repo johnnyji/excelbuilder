@@ -1,8 +1,7 @@
-import React, { useCallback, useContext } from "react";
+import React, { useCallback } from "react";
 import { Outlet, useNavigate, useLocation } from "react-router-dom";
 import isMobile from "ismobilejs";
 import {
-  Avatar,
   Box,
   Divider,
   Drawer,
@@ -11,7 +10,7 @@ import {
   ListItemButton,
   ListItemIcon,
   ListItemText,
-  Typography,
+  Typography
 } from "@mui/material";
 
 // TODO(Billing): Change this back when we enable billing
@@ -19,12 +18,13 @@ import {
 import LogoutIcon from "@mui/icons-material/Logout";
 import ExplainerIcon from "@mui/icons-material/Plagiarism";
 import GeneratorIcon from "@mui/icons-material/Superscript";
+import LogoIcon from "@mui/icons-material/Task";
 
 import RemainingCreditsContext from "../../contexts/RemainingCredits";
 
-import { UserContext } from "../../contexts/User";
-
 import { logout } from "../../firebase";
+
+import colors from "../../config/colors";
 
 const isPhone = isMobile().phone;
 const drawerWidth = isPhone ? 56 : 240;
@@ -32,17 +32,16 @@ const drawerWidth = isPhone ? 56 : 240;
 export default function Dashboard({ children }) {
   const location = useLocation();
   const navigate = useNavigate();
-  const user = useContext(UserContext);
 
   const handleNavGenerator = useCallback(
-    (e) => {
+    e => {
       navigate("/");
     },
     [navigate]
   );
 
   const handleNavExplainer = useCallback(
-    (e) => {
+    e => {
       navigate("/explainer");
     },
     [navigate]
@@ -70,8 +69,8 @@ export default function Dashboard({ children }) {
             flexShrink: 0,
             "& .MuiDrawer-paper": {
               width: drawerWidth,
-              boxSizing: "border-box",
-            },
+              boxSizing: "border-box"
+            }
           }}
           variant="permanent"
           anchor="left"
@@ -79,10 +78,7 @@ export default function Dashboard({ children }) {
           <Box mb={2} mt={2}>
             <ListItem>
               <ListItemIcon>
-                <Avatar
-                  src={user.photoURL}
-                  style={{ height: 24, width: 24, marginRight: 16 }}
-                />
+                <LogoIcon sx={{ color: colors.brandPrimary }} />
               </ListItemIcon>
               <ListItemText
                 primary={
@@ -91,10 +87,10 @@ export default function Dashboard({ children }) {
                     style={{
                       whiteSpace: "nowrap",
                       overflow: "hidden",
-                      textOverflow: "ellipsis",
+                      textOverflow: "ellipsis"
                     }}
                   >
-                    <b>{user.name}</b>
+                    <b>{process.env.REACT_APP_APP_NAME}</b>
                   </Typography>
                 }
               />
