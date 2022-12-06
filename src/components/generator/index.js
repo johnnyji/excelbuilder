@@ -10,7 +10,7 @@ import {
   ButtonGroup,
   Paper,
   TextField,
-  Typography,
+  Typography
 } from "@mui/material";
 
 import CopyToClipboard from "react-copy-to-clipboard";
@@ -31,11 +31,11 @@ const styles = {
   generator: {
     marginTop: "16px",
     display: "flex",
-    flexDirection: "column",
+    flexDirection: "column"
   },
   generateButton: {
     marginTop: "16px",
-    marginBottom: "16px",
+    marginBottom: "16px"
   },
   result: {
     background: "#F7F7F7",
@@ -43,12 +43,12 @@ const styles = {
     padding: "16px",
     "&:hover": {
       background: "#FFF",
-      cursor: "pointer",
-    },
-  },
+      cursor: "pointer"
+    }
+  }
 };
 
-const getSystemWording = (system) => {
+const getSystemWording = system => {
   if (system === "EXCEL") return "an Excel";
   if (system === "SHEETS") return "a Google Sheets";
   if (system === "AIRTABLE") return "an Airtable";
@@ -78,7 +78,7 @@ export default function Generator() {
       setSearchParams(searchParams.delete("billing_redirect"));
       enqueueSnackbar("Your plan was successfully changed!", {
         preventDuplicate: true,
-        variant: "success",
+        variant: "success"
       });
     }
 
@@ -93,23 +93,23 @@ export default function Generator() {
           max_tokens: 1000,
           top_p: 1,
           frequency_penalty: 0,
-          presence_penalty: 0,
+          presence_penalty: 0
         })
-        .then((resp) => {
+        .then(resp => {
           const result = resp.data.choices[0];
           if (result) {
             setResult(result.text);
             createGeneration(user, prompt, result);
             updateRemainingCredits();
             enqueueSnackbar("Woohoo! Formula generated ✅", {
-              variant: "success",
+              variant: "success"
             });
             setGenStatus("DONE");
           } else {
             setGenStatus("ERROR");
           }
         })
-        .catch((_) => {
+        .catch(_ => {
           setGenStatus("ERROR");
         });
     }
@@ -124,7 +124,7 @@ export default function Generator() {
     setSearchParams,
     system,
     updateRemainingCredits,
-    user,
+    user
   ]);
 
   const handleGenerate = useCallback(() => {
@@ -138,14 +138,14 @@ export default function Generator() {
   }, [prompt, setGenStatus, setPromptError]);
 
   const handleSetPrompt = useCallback(
-    (e) => {
+    e => {
       setPrompt(e.target.value);
     },
     [setPrompt]
   );
 
   const handleSetSystem = useCallback(
-    (e) => {
+    e => {
       setSystem(e.target.name);
     },
     [setSystem]
