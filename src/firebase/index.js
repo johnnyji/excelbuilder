@@ -8,7 +8,7 @@ import {
   signInWithEmailAndPassword,
   createUserWithEmailAndPassword,
   sendPasswordResetEmail,
-  signOut,
+  signOut
 } from "firebase/auth";
 
 import {
@@ -17,7 +17,7 @@ import {
   getDocs,
   collection,
   where,
-  addDoc,
+  addDoc
 } from "firebase/firestore";
 
 import { getStripePayments } from "@stripe/firestore-stripe-payments";
@@ -31,7 +31,7 @@ const firebaseConfig = {
   storageBucket: process.env.REACT_APP_FIREBASE_STORAGE_BUCKET,
   messagingSenderId: process.env.REACT_APP_FIREBASE_MESSAGE_SENDER_ID,
   appId: process.env.REACT_APP_FIREBASE_APP_ID,
-  measurementId: process.env.REACT_APP_FIREBASE_MEASUREMENT_ID,
+  measurementId: process.env.REACT_APP_FIREBASE_MEASUREMENT_ID
 };
 
 const app = initializeApp(firebaseConfig);
@@ -42,12 +42,13 @@ const googleProvider = new GoogleAuthProvider();
 
 const stripePayments = getStripePayments(app, {
   productsCollection: "stripeProducts",
-  customersCollection: "stripeUsers",
+  customersCollection: "stripeUsers"
 });
 
-const parseAuthError = (err) => {
-  if (Array.isArray(err) && err.length > 0) {
-    switch (err[0].message) {
+const parseAuthError = err => {
+  if (typeof err === "object") {
+    console.error(err["message"]);
+    switch (err["message"]) {
       case "EMAIL_EXISTS":
         return Promise.reject("This account already exists, log in instead");
       case "INVALID_PASSWORD":
@@ -81,7 +82,7 @@ const signInWithGoogle = async () => {
         uid: user.uid,
         name: user.displayName,
         authProvider: "google",
-        email: user.email,
+        email: user.email
       });
     }
   } catch (err) {
@@ -92,8 +93,11 @@ const signInWithGoogle = async () => {
 const logInWithEmailAndPassword = async (email, password) => {
   try {
     await signInWithEmailAndPassword(auth, email, password);
+    console.log("post login");
     return Promise.resolve();
   } catch (err) {
+    console.log("Error returned: ");
+    console.inspect(error);
     return parseAuthError(err);
   }
 };
@@ -106,7 +110,7 @@ const registerWithEmailAndPassword = async (name, email, password) => {
       uid: user.uid,
       name,
       authProvider: "local",
-      email,
+      email
     });
     return Promise.resolve();
   } catch (err) {
@@ -125,7 +129,7 @@ const createGeneration = async (user, prompt, completion) => {
       insertedAt: now,
       updatedAt: now,
       generatedAt: now,
-      userUid: user.uid,
+      userUid: user.uid
     };
     await addDoc(collection(db, "generations"), data);
   } catch (err) {
@@ -133,7 +137,7 @@ const createGeneration = async (user, prompt, completion) => {
   }
 };
 
-const sendPasswordReset = async (email) => {
+const sendPasswordReset = async email => {
   try {
     await sendPasswordResetEmail(auth, email);
     return Promise.resolve();
@@ -157,5 +161,5 @@ export {
   registerWithEmailAndPassword,
   sendPasswordReset,
   stripePayments,
-  logout,
+  logout
 };
