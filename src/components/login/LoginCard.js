@@ -1,5 +1,6 @@
-import React, { useCallback, useState } from "react";
+import React, { useCallback, useEffect, useState } from "react";
 import { useSnackbar } from "notistack";
+import { useSearchParams } from "react-router-dom";
 import validate from "validate.js";
 import {
   Box,
@@ -8,6 +9,9 @@ import {
   Divider,
   Grid,
   Link,
+  ListItem,
+  ListItemAvatar,
+  ListItemText,
   Paper,
   TextField,
   Typography
@@ -21,6 +25,8 @@ import {
 } from "../../firebase";
 
 import GoogleIcon from "@mui/icons-material/Google";
+import LogoIcon from "@mui/icons-material/Task";
+import colors from "../../config/colors";
 
 const constraints = {
   email: {
@@ -51,6 +57,13 @@ export default function Login() {
   const [action, setAction] = useState("SIGN_UP");
   const [errors, setErrors] = useState({});
   const [values, setValues] = useState(defaultValues);
+  const [searchParams] = useSearchParams();
+
+  useEffect(() => {
+    if (searchParams.has("action")) {
+      setAction(searchParams.get("action"));
+    }
+  }, [searchParams, setAction]);
 
   const handleInputChange = useCallback(
     e => {
@@ -85,7 +98,8 @@ export default function Login() {
           enqueueSnackbar(
             "Password reset link sent to your email ✅ (check Spam folder just in case!)",
             {
-              variant: "success"
+              variant: "success",
+              preventDuplicate: true
             }
           );
           setValues(defaultValues);
@@ -106,7 +120,8 @@ export default function Login() {
       registerWithEmailAndPassword("", values.email, values.password)
         .then(() => {
           enqueueSnackbar("Woohoo! Time to crank some formulas 🎉", {
-            variant: "success"
+            variant: "success",
+            preventDuplicate: true
           });
         })
         .catch(err => {
@@ -129,24 +144,20 @@ export default function Login() {
     }
   }, [enqueueSnackbar, setErrors, values]);
 
-  let title;
   let actionVerbage;
   let onAction;
 
   if (action === "FORGOT") {
-    title = "Reset password";
     actionVerbage = "Reset Password";
     onAction = handleForgot;
   }
 
   if (action === "SIGN_UP") {
-    title = "Sign up for free";
     actionVerbage = "Sign Up with Password";
     onAction = handleSignUp;
   }
 
   if (action === "LOGIN") {
-    title = "Login";
     actionVerbage = "Login";
     onAction = handleSignIn;
   }
@@ -165,17 +176,33 @@ export default function Login() {
       }}
       variant="outlined"
     >
-      <Typography
-        align="center"
-        variant="h5"
-        sx={{ display: "flex", alignItems: "center" }}
-      >
-        <b>{title}</b>
-      </Typography>
-
+      <ListItem disableGutters>
+        <ListItemAvatar>
+          <LogoIcon
+            fontSize="large"
+            sx={{ color: colors.brandPrimary, marginRight: 2 }}
+          />
+        </ListItemAvatar>
+        <ListItemText
+          primary={
+            <Typography
+              align="center"
+              variant="h5"
+              sx={{ display: "flex", alignItems: "center" }}
+            >
+              <b>{process.env.REACT_APP_APP_NAME}</b>
+            </Typography>
+          }
+          secondary={
+            <Typography variant="subtitle2" gutterBottom>
+              Generate any Excel, Google Sheets or Airtable formula using AI
+            </Typography>
+          }
+        />
+      </ListItem>
       <Box mt={2} mb={2}>
         <Chip
-          label="✅ 100% Free, No Credit Card Required"
+          label="✅ Free to use, no credit card required"
           variant="outlined"
           color="success"
         />
