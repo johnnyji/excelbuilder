@@ -4,14 +4,14 @@ import {
   ListItem,
   ListItemAvatar,
   ListItemText,
-  Typography,
+  Typography
 } from "@mui/material";
 
 import LogoIcon from "@mui/icons-material/Task";
 
 import LoginCard from "./LoginCard";
 
-import landingExample from "./landing_example.gif";
+import landingExample from "../../landingExample.gif";
 
 import colors from "../../config/colors";
 
@@ -26,7 +26,7 @@ export default function Login() {
         backgroundColor: "#F7F7F7F7",
         minHeight: "100vh",
         padding: 32,
-        position: "relative",
+        position: "relative"
       }}
     >
       <div style={{ paddingBottom: 32 }}>
@@ -64,7 +64,7 @@ export default function Login() {
           height: "100%",
           display: "flex",
           alignItems: "center",
-          justifyContent: "center",
+          justifyContent: "center"
         }}
       >
         <LoginCard />

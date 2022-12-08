@@ -7,6 +7,7 @@ import CssBaseline from "@mui/material/CssBaseline";
 
 import { SnackbarProvider } from "notistack";
 
+import LandingPage from "./components/landingPage";
 import Dashboard from "./components/dashboard";
 import Generator from "./components/generator";
 import Explainer from "./components/explainer";
