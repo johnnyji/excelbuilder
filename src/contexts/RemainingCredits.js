@@ -36,7 +36,7 @@ export default function RemainingCredits({ children }) {
       user.subscriptionPlanKey === subscriptionPlanKey.STARTER
     ) {
       enqueueSnackbar(
-        "You're out of credits for the month. Please upgrade your plan tohave unlimited credits!",
+        "You're out of credits for the month. Please upgrade your plan to have unlimited credits!",
         {
           preventDuplicate: true,
           variant: "error"

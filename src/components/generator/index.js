@@ -1,8 +1,9 @@
 import React, { useCallback, useContext, useEffect, useState } from "react";
 import { Link, useSearchParams } from "react-router-dom";
-import { useLocalStorage, useWindowSize } from "react-use";
+import { useLocalStorage, useWindowSize, usePrevious } from "react-use";
 import { useSnackbar } from "notistack";
 import Confetti from "react-confetti";
+import delay from "delay";
 
 import {
   Alert,
@@ -15,7 +16,7 @@ import {
 
 import CopyToClipboard from "react-copy-to-clipboard";
 
-import { createGeneration } from "../../firebase";
+import { createGeneration, getGenerationByPrompt } from "../../firebase";
 import openai from "../../openai";
 
 import RemainingCreditsBanner from "../shared/RemainingCreditsBanner";
@@ -71,6 +72,7 @@ export default function Generator() {
     RemainingCreditsContext
   );
   const outOfCredits = remainingCredits === 0;
+  const prevGenStatus = usePrevious(genStatus);
 
   useEffect(() => {
     if (postBillingRedirect === "SUCCESS") {
@@ -82,40 +84,70 @@ export default function Generator() {
       });
     }
 
-    if (genStatus === "GENERATING") {
-      openai
-        .createCompletion({
-          model: "text-davinci-003",
-          prompt: `Generate me ${getSystemWording(
-            system
-          )} formula for:\n\n${prompt}`,
-          temperature: 0,
-          max_tokens: 1000,
-          top_p: 1,
-          frequency_penalty: 0,
-          presence_penalty: 0
-        })
-        .then(resp => {
-          const result = resp.data.choices[0];
-          if (result) {
-            setResult(result.text);
-            createGeneration(user, prompt, result);
+    if (prevGenStatus !== "ERROR" && genStatus === "ERROR") {
+      enqueueSnackbar(
+        "Oops, something went wrong. Please double check your input!",
+        {
+          variant: "error",
+          preventDuplicate: true
+        }
+      );
+    }
+
+    if (prevGenStatus !== "GENERATING" && genStatus === "GENERATING") {
+      const processPrompt = async () => {
+        try {
+          const existing = await getGenerationByPrompt(user, prompt, system);
+          if (existing) {
+            await delay(1000);
+            setResult(existing.completion.text);
+            // TODO: If I decide to enable this again, I need to rework this
+            // as the `result` here is not the same
+            // createGeneration(user, prompt, result);
             updateRemainingCredits();
             enqueueSnackbar("Woohoo! Formula generated ✅", {
-              variant: "success"
+              variant: "success",
+              preventDuplicate: true
             });
             setGenStatus("DONE");
-          } else {
-            setGenStatus("ERROR");
+            return;
           }
-        })
-        .catch(_ => {
+
+          const completion = await openai.createCompletion({
+            model: "text-davinci-003",
+            prompt: `Generate me ${getSystemWording(
+              system
+            )} formula for:\n\n${prompt}`,
+            temperature: 0,
+            max_tokens: 1000,
+            top_p: 1,
+            frequency_penalty: 0,
+            presence_penalty: 0
+          });
+
+          const result = completion.data.choices[0];
+
+          if (result) {
+            setResult(result.text);
+            createGeneration(user, prompt, result, system);
+            updateRemainingCredits();
+            enqueueSnackbar("Woohoo! Formula generated ✅", {
+              variant: "success",
+              preventDuplicate: true
+            });
+            setGenStatus("DONE");
+          }
+        } catch (err) {
           setGenStatus("ERROR");
-        });
+        }
+      };
+
+      processPrompt();
     }
   }, [
     enqueueSnackbar,
     genStatus,
+    prevGenStatus,
     postBillingRedirect,
     prompt,
     setResult,
@@ -132,9 +164,9 @@ export default function Generator() {
       setPromptError(
         "Your description is too short. Try to be a bit more descriptive."
       );
-    } else {
-      setGenStatus("GENERATING");
+      return;
     }
+    setGenStatus("GENERATING");
   }, [prompt, setGenStatus, setPromptError]);
 
   const handleSetPrompt = useCallback(

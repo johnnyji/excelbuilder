@@ -13,6 +13,7 @@ import {
 
 import {
   getFirestore,
+  limit,
   query,
   getDocs,
   collection,
@@ -97,7 +98,7 @@ const logInWithEmailAndPassword = async (email, password) => {
     return Promise.resolve();
   } catch (err) {
     console.log("Error returned: ");
-    console.inspect(error);
+    console.inspect(err);
     return parseAuthError(err);
   }
 };
@@ -118,7 +119,7 @@ const registerWithEmailAndPassword = async (name, email, password) => {
   }
 };
 
-const createGeneration = async (user, prompt, completion) => {
+const createGeneration = async (user, prompt, completion, system) => {
   try {
     const now = new Date();
     const uid = uuidv4();
@@ -129,11 +130,32 @@ const createGeneration = async (user, prompt, completion) => {
       insertedAt: now,
       updatedAt: now,
       generatedAt: now,
+      system,
       userUid: user.uid
     };
     await addDoc(collection(db, "generations"), data);
   } catch (err) {
     console.error(err);
+  }
+};
+
+const getGenerationByPrompt = async (user, prompt, system) => {
+  try {
+    const generationQuery = query(
+      collection(db, "generations"),
+      where("userUid", "==", user.uid),
+      where("prompt", "==", prompt),
+      where("system", "==", system),
+      limit(1)
+    );
+    const docs = await getDocs(generationQuery);
+    if (docs.docs.length === 1) {
+      return Promise.resolve(docs.docs[0].data());
+    } else {
+      return Promise.resolve(null);
+    }
+  } catch (err) {
+    Promise.reject(err);
   }
 };
 
@@ -158,6 +180,7 @@ export {
   signInWithGoogle,
   logInWithEmailAndPassword,
   createGeneration,
+  getGenerationByPrompt,
   registerWithEmailAndPassword,
   sendPasswordReset,
   stripePayments,
