@@ -21,12 +21,14 @@ export default function User({ children }) {
     return <FullPageError />;
   }
 
-  if (!user && location.pathname !== "/signin") {
-    return <Navigate to="/signin" state={{ from: location }} replace />;
+  const isPathAuthorized = location.pathname.startsWith("/app");
+
+  if (!user && isPathAuthorized) {
+    return <Navigate to="/" state={{ from: location }} replace />;
   }
 
-  if (user && location.pathname === "/signin") {
-    return <Navigate to="/" state={{ from: location }} replace />;
+  if (user && !isPathAuthorized) {
+    return <Navigate to="/app" state={{ from: location }} replace />;
   }
 
   return <UserContext.Provider value={user}>{children}</UserContext.Provider>;

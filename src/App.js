@@ -41,12 +41,13 @@ export default function App() {
           <CssBaseline />
           <UserContext>
             <Routes>
+              <Route path="/" element={<LandingPage />} />
               <Route path="/signin" element={<Login />} />
-              <Route path="/" element={<Dashboard />}>
+              <Route path="/app" element={<Dashboard />}>
                 <Route index element={<Generator />} />
-                <Route path="/explainer" element={<Explainer />} />
+                <Route path="explainer" element={<Explainer />} />
                 {/* TODO(Billing): Change this back when we enable billing */}
-                {/* <Route path="/billing" element={<Billing />} /> */}
+                {/* <Route path="billing" element={<Billing />} /> */}
               </Route>
               <Route path="*" element={<NoMatch />} />
             </Routes>

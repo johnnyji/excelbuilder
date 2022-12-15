@@ -45,7 +45,7 @@ export default function NoMatch() {
         <Box mt={3}>
           <Button
             onClick={() => {
-              navigate("/");
+              navigate("/app");
             }}
             variant="outlined"
           >

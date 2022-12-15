@@ -35,14 +35,14 @@ export default function Dashboard({ children }) {
 
   const handleNavGenerator = useCallback(
     e => {
-      navigate("/");
+      navigate("/app");
     },
     [navigate]
   );
 
   const handleNavExplainer = useCallback(
     e => {
-      navigate("/explainer");
+      navigate("/app/explainer");
     },
     [navigate]
   );
@@ -50,13 +50,13 @@ export default function Dashboard({ children }) {
   // TODO(Billing): Change this back when we enable billing
   // const handleNavBilling = useCallback(
   //   e => {
-  //     navigate("/billing");
+  //     navigate("/app/billing");
   //   },
   //   [navigate]
   // );
 
   const handleLogout = useCallback(() => {
-    navigate("/signin");
+    navigate("/");
     logout();
   }, [navigate]);
 
