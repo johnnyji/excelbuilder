@@ -53,7 +53,7 @@ export default function RemainingCredits({ children }) {
   useEffect(() => {
     if (user.uid && user.subscriptionPlanKey === subscriptionPlanKey.STARTER) {
       // We trigger this everytime the user generates an OpenAI completion
-      // in order to deduct credits in the UI, on secondary generations
+      // in order to deduct credits in the UI, on secondary competions
       // the credits are already loaded, so no need to distrupt the user with
       // a loading spinner
       if (!loaded) {
@@ -70,7 +70,7 @@ export default function RemainingCredits({ children }) {
         .toDate();
 
       const creditsUsedQuery = query(
-        collection(db, "generations"),
+        collection(db, "completions"),
         where("userUid", "==", user.uid),
         where("generatedAt", ">=", periodCurrent),
         where("generatedAt", "<", periodNext)

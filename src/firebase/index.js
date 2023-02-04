@@ -132,7 +132,7 @@ const createGeneration = async (user, prompt, completion, system) => {
       system,
       userUid: user.uid,
     };
-    await addDoc(collection(db, "generations"), data);
+    await addDoc(collection(db, "completions"), data);
   } catch (err) {
     console.error(err);
   }
@@ -141,7 +141,7 @@ const createGeneration = async (user, prompt, completion, system) => {
 const getGenerationByPrompt = async (user, prompt, system) => {
   try {
     const generationQuery = query(
-      collection(db, "generations"),
+      collection(db, "completions"),
       where("userUid", "==", user.uid),
       where("prompt", "==", prompt),
       where("system", "==", system),
