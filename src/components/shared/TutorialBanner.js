@@ -8,7 +8,6 @@ export default function TutorialBanner() {
 
   return (
     <>
-      {/*
       <Box mb={2}>
         <Alert severity="info">
           <Link
@@ -23,7 +22,6 @@ export default function TutorialBanner() {
           </Link>
         </Alert>
       </Box>
-      */}
       <Dialog
         onClose={() => {
           setOpen(false);

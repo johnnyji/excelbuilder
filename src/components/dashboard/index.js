@@ -69,8 +69,8 @@ export default function Dashboard({ children }) {
             flexShrink: 0,
             "& .MuiDrawer-paper": {
               width: drawerWidth,
-              boxSizing: "border-box"
-            }
+              boxSizing: "border-box",
+            },
           }}
           variant="permanent"
           anchor="left"
@@ -87,7 +87,7 @@ export default function Dashboard({ children }) {
                     style={{
                       whiteSpace: "nowrap",
                       overflow: "hidden",
-                      textOverflow: "ellipsis"
+                      textOverflow: "ellipsis",
                     }}
                   >
                     <b>{process.env.REACT_APP_APP_NAME}</b>

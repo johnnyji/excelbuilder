@@ -121,7 +121,7 @@ export default function Billing() {
     );
 
     stripeCustomerPortalRef({
-      returnUrl: `${window.location.origin}/billing`,
+      returnUrl: `${window.location.origin}/app/billing`,
     })
       .then(({ data }) => {
         window.location.assign(data.url);
@@ -145,8 +145,8 @@ export default function Billing() {
       createCheckoutSession(stripePayments, {
         price: priceId,
         allow_promotion_codes: freeUserEmails.includes(user.email),
-        success_url: `${window.location.origin}?billing_redirect=SUCCESS`,
-        cancel_url: `${window.location.origin}/billing?billing_redirect=CANCEL`,
+        success_url: `${window.location.origin}/app?billing_redirect=SUCCESS`,
+        cancel_url: `${window.location.origin}/app/billing?billing_redirect=CANCEL`,
       })
         .then((session) => {
           window.location.assign(session.url);
@@ -162,7 +162,8 @@ export default function Billing() {
     [enqueueSnackbar, setBillingSessionLoading, user.email]
   );
 
-  const isStarterPlan = user.subscriptionPlanKey === subscriptionPlanKey.STARTER;
+  const isStarterPlan =
+    user.subscriptionPlanKey === subscriptionPlanKey.STARTER;
 
   const fullProducts = [starterPlanProduct].concat(products);
 
@@ -338,7 +339,9 @@ export default function Billing() {
         justifyContent="center"
         alignItems="stretch"
       >
-        {user.subscriptionPlanKey === subscriptionPlanKey.STARTER ? planList : managePlan}
+        {user.subscriptionPlanKey === subscriptionPlanKey.STARTER
+          ? planList
+          : managePlan}
       </Grid>
     </DashboardWrapper>
   );

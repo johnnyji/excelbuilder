@@ -4,8 +4,7 @@ import TikTokIcon from "../ui/icons/TikTok";
 import config from "./config";
 
 const Footer = () => {
-  const { company, about } = config;
-  const { name: companyName } = company;
+  const { about } = config;
   const { socialMedia, sections } = about;
 
   return (

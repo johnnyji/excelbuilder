@@ -14,9 +14,11 @@ export default function RemainingCreditsBanner() {
 
   return (
     <Box mb={2}>
-      <Alert severity={remainingCredits === 0 ? "error" : "info"}>
+      <Alert severity={remainingCredits === 0 ? "error" : "warning"}>
         {remainingCredits} credits left this month —{" "}
-        <Link to="/billing">Get more credits here!</Link>
+        <Link to="/app/billing" style={{ textDecoration: "underline" }}>
+          Get more credits here!
+        </Link>
       </Alert>
     </Box>
   );

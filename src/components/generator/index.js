@@ -203,8 +203,8 @@ export default function Generator() {
         />
       )}
 
-      <TutorialBanner />
       <RemainingCreditsBanner />
+      <TutorialBanner />
 
       <Typography variant="subtitle1" gutterBottom>
         What type of system is this for?
@@ -262,7 +262,7 @@ export default function Generator() {
         {user.paymentDelinquent && (
           <Alert severity="error">
             Your subscription seems to have a payment issue, please resolve that{" "}
-            <Link to="/billing">in your billing page</Link> first{" "}
+            <Link to="/app/billing">in your billing page</Link> first{" "}
             <Emoji symbol="🙏" />
           </Alert>
         )}
@@ -270,7 +270,8 @@ export default function Generator() {
           <Alert severity="error">
             You're out of credits for the month <Emoji symbol="😢" /> Credits
             reset on the 1st of every month. If you would like unlimited
-            credits, you can <Link to="/billing">upgrade your plan here!</Link>
+            credits, you can{" "}
+            <Link to="/app/billing">upgrade your plan here!</Link>
           </Alert>
         )}
         {result && (

@@ -10,7 +10,6 @@ export const UserContext = React.createContext(null);
 
 export default function User({ children }) {
   const [user, loading, error] = useCurrentUser();
-
   const location = useLocation();
 
   if (loading) {
