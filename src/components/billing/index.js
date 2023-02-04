@@ -55,16 +55,16 @@ const freeUserEmails = [
 const plans = {
   STARTER: {
     title: subscriptionPlanKey.STARTER,
-    values: ["7 explains/builds per month"],
+    values: ["7 formulas per month", "Basic email support"],
   },
   PREMIUM: {
     title: subscriptionPlanKey.PREMIUM,
-    values: ["Unlimited explains/builds", "Priority email support"],
+    values: ["Unlimited formulas!", "Priority email support"],
   },
   PREMIUM_Y: {
-    title: "Premium (Yearly)",
+    title: "Pro (Annual)",
     values: [
-      "Unlimited explains/builds",
+      "Unlimited formulas!",
       "Priority email support",
       <>
         <b>25% cheaper</b> than monthly!
@@ -173,7 +173,7 @@ export default function Billing() {
 
   const renderPlan = (product) => {
     const plan = plans[product.metadata.id];
-    const price = product.prices[0];
+    const price = product.prices[product.prices.length - 1];
     const priceFormatted =
       price.unit_amount === 0
         ? "Free"
