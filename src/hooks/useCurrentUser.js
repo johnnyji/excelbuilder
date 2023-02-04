@@ -12,7 +12,7 @@ import { stripePayments } from "../firebase";
 
 import { auth, db } from "../firebase";
 
-// import { subscriptionPlanKey } from "../config/billing";
+import { subscriptionPlanKey } from "../config/billing";
 
 // https://mrcoles.com/stripe-api-subscription-status/
 const paymentDelinquentStatuses = [
@@ -41,8 +41,7 @@ export default function useCurrentUser() {
   const [subLoading, setSubLoading] = useState(false);
   const [subError, setSubError] = useState(null);
   const [sub, setSub] = useState(null);
-  // TODO(Billing): Change this back to subscriptionPlanKey.STARTER when we enable billing
-  const [subKey, setSubKey] = useState("STARTER");
+  const [subKey, setSubKey] = useState(subscriptionPlanKey.STARTER);
 
   useEffect(() => {
     if (userUid) {
@@ -67,8 +66,7 @@ export default function useCurrentUser() {
             : Promise.resolve(null));
 
           setSub(subscription ?? null);
-          // TODO(Billing): Change this back to subscriptionPlanKey.STARTER when we enable billing
-          setSubKey(product?.metadata?.id ?? "STARTER");
+          setSubKey(product?.metadata?.id ?? subscriptionPlanKey.STARTER);
           setSubLoading(false);
         } catch (e) {
           setSubError(e);

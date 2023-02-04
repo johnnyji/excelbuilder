@@ -10,12 +10,11 @@ export default function InvalidSubscriptionBanner() {
 
   if (!user.paymentDelinquent) return null;
 
-  const billingPageLink =
-    location.pathname === "/billing" ? (
-      'update your billing info below by clicking "Manage/Renew Plan"'
-    ) : (
-      <Link to="/billing">update your billing information here</Link>
-    );
+  const billingPageLink = location.includes("billing") ? (
+    'update your billing info below by clicking "Manage/Renew Plan"'
+  ) : (
+    <Link to="/app/billing">update your billing information here</Link>
+  );
 
   return (
     <Box mb={2}>

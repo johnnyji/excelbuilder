@@ -8,7 +8,7 @@ import {
   ButtonGroup,
   Paper,
   TextField,
-  Typography,
+  Typography
 } from "@mui/material";
 import delay from "delay";
 
@@ -30,23 +30,23 @@ const styles = {
   generator: {
     marginTop: "16px",
     display: "flex",
-    flexDirection: "column",
+    flexDirection: "column"
   },
   generateButton: {
     marginTop: "16px",
-    marginBottom: "16px",
+    marginBottom: "16px"
   },
   result: {
     background: "#F7F7F7",
     padding: "16px",
     "&:hover": {
       background: "#FFF",
-      cursor: "pointer",
-    },
-  },
+      cursor: "pointer"
+    }
+  }
 };
 
-const getSystemWording = (system) => {
+const getSystemWording = system => {
   if (system === "EXCEL") return "Excel formula";
   if (system === "SHEETS") return "Google Sheets formula";
   if (system === "AIRTABLE") return "Airtable formula";
@@ -74,7 +74,7 @@ export default function Generator() {
         "Oops, something went wrong. Please double check your input!",
         {
           variant: "error",
-          preventDuplicate: true,
+          preventDuplicate: true
         }
       );
     }
@@ -92,7 +92,7 @@ export default function Generator() {
             updateRemainingCredits();
             enqueueSnackbar("Woohoo! Formula generated ✅", {
               variant: "success",
-              preventDuplicate: true,
+              preventDuplicate: true
             });
             setGenStatus("DONE");
             return;
@@ -106,7 +106,7 @@ export default function Generator() {
             max_tokens: 1000,
             top_p: 1,
             frequency_penalty: 0,
-            presence_penalty: 0,
+            presence_penalty: 0
           });
 
           const result = completion.data.choices[0];
@@ -117,7 +117,7 @@ export default function Generator() {
             updateRemainingCredits();
             enqueueSnackbar("Woohoo! Explanation generated ✅", {
               variant: "success",
-              preventDuplicate: true,
+              preventDuplicate: true
             });
             setGenStatus("DONE");
           }
@@ -137,7 +137,7 @@ export default function Generator() {
     prompt,
     updateRemainingCredits,
     user,
-    system,
+    system
   ]);
 
   const handleGenerate = useCallback(() => {
@@ -149,14 +149,14 @@ export default function Generator() {
   }, [prompt, setGenStatus, setPromptError]);
 
   const handleSetPrompt = useCallback(
-    (e) => {
+    e => {
       setPrompt(e.target.value);
     },
     [setPrompt]
   );
 
   const handleSetSystem = useCallback(
-    (e) => {
+    e => {
       setSystem(e.target.name);
     },
     [setSystem]
@@ -169,8 +169,8 @@ export default function Generator() {
       title="Explain Formula"
       subtitle="Paste a Excel/Sheets/Airtable formula you want explained to you in plain english 🎓"
     >
-      <TutorialBanner />
       <RemainingCreditsBanner />
+      <TutorialBanner />
 
       <Typography variant="subtitle1" gutterBottom>
         What type of system is this for?
@@ -228,15 +228,8 @@ export default function Generator() {
         {user.paymentDelinquent && (
           <Alert severity="error">
             Your subscription seems to have a payment issue, please resolve that{" "}
-            <Link to="/billing">in your billing page</Link> first{" "}
+            <Link to="/app/billing">in your billing page</Link> first{" "}
             <Emoji symbol="🙏" />
-          </Alert>
-        )}
-        {outOfCredits && (
-          <Alert severity="error">
-            You're out of credits for the month <Emoji symbol="😢" /> Credits
-            reset on the 1st of every month. If you would like unlimited
-            credits, you can <Link to="/billing">upgrade your plan here!</Link>
           </Alert>
         )}
         {result && (

@@ -55,16 +55,16 @@ const freeUserEmails = [
 const plans = {
   STARTER: {
     title: subscriptionPlanKey.STARTER,
-    values: ["7 explains/builds per month"],
+    values: ["7 formulas per month", "Basic email support"],
   },
   PREMIUM: {
     title: subscriptionPlanKey.PREMIUM,
-    values: ["Unlimited explains/builds", "Priority email support"],
+    values: ["Unlimited formulas!", "Priority email support"],
   },
   PREMIUM_Y: {
-    title: "Premium (Yearly)",
+    title: "Pro (Annual)",
     values: [
-      "Unlimited explains/builds",
+      "Unlimited formulas!",
       "Priority email support",
       <>
         <b>25% cheaper</b> than monthly!
@@ -121,7 +121,7 @@ export default function Billing() {
     );
 
     stripeCustomerPortalRef({
-      returnUrl: `${window.location.origin}/billing`,
+      returnUrl: `${window.location.origin}/app/billing`,
     })
       .then(({ data }) => {
         window.location.assign(data.url);
@@ -145,8 +145,8 @@ export default function Billing() {
       createCheckoutSession(stripePayments, {
         price: priceId,
         allow_promotion_codes: freeUserEmails.includes(user.email),
-        success_url: `${window.location.origin}?billing_redirect=SUCCESS`,
-        cancel_url: `${window.location.origin}/billing?billing_redirect=CANCEL`,
+        success_url: `${window.location.origin}/app?billing_redirect=SUCCESS`,
+        cancel_url: `${window.location.origin}/app/billing?billing_redirect=CANCEL`,
       })
         .then((session) => {
           window.location.assign(session.url);
@@ -162,7 +162,8 @@ export default function Billing() {
     [enqueueSnackbar, setBillingSessionLoading, user.email]
   );
 
-  const isStarterPlan = user.subscriptionPlanKey === subscriptionPlanKey.STARTER;
+  const isStarterPlan =
+    user.subscriptionPlanKey === subscriptionPlanKey.STARTER;
 
   const fullProducts = [starterPlanProduct].concat(products);
 
@@ -172,7 +173,7 @@ export default function Billing() {
 
   const renderPlan = (product) => {
     const plan = plans[product.metadata.id];
-    const price = product.prices[0];
+    const price = product.prices[product.prices.length - 1];
     const priceFormatted =
       price.unit_amount === 0
         ? "Free"
@@ -338,7 +339,9 @@ export default function Billing() {
         justifyContent="center"
         alignItems="stretch"
       >
-        {user.subscriptionPlanKey === subscriptionPlanKey.STARTER ? planList : managePlan}
+        {user.subscriptionPlanKey === subscriptionPlanKey.STARTER
+          ? planList
+          : managePlan}
       </Grid>
     </DashboardWrapper>
   );

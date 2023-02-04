@@ -10,11 +10,10 @@ import {
   ListItemButton,
   ListItemIcon,
   ListItemText,
-  Typography
+  Typography,
 } from "@mui/material";
 
-// TODO(Billing): Change this back when we enable billing
-// import BillingIcon from "@mui/icons-material/CreditCard";
+import BillingIcon from "@mui/icons-material/CreditCard";
 import LogoutIcon from "@mui/icons-material/Logout";
 import ExplainerIcon from "@mui/icons-material/Plagiarism";
 import GeneratorIcon from "@mui/icons-material/Superscript";
@@ -34,29 +33,28 @@ export default function Dashboard({ children }) {
   const navigate = useNavigate();
 
   const handleNavGenerator = useCallback(
-    e => {
-      navigate("/");
+    (e) => {
+      navigate("/app");
     },
     [navigate]
   );
 
   const handleNavExplainer = useCallback(
-    e => {
-      navigate("/explainer");
+    (e) => {
+      navigate("/app/explainer");
     },
     [navigate]
   );
 
-  // TODO(Billing): Change this back when we enable billing
-  // const handleNavBilling = useCallback(
-  //   e => {
-  //     navigate("/billing");
-  //   },
-  //   [navigate]
-  // );
+  const handleNavBilling = useCallback(
+    (e) => {
+      navigate("/app/billing");
+    },
+    [navigate]
+  );
 
   const handleLogout = useCallback(() => {
-    navigate("/signin");
+    navigate("/");
     logout();
   }, [navigate]);
 
@@ -69,8 +67,8 @@ export default function Dashboard({ children }) {
             flexShrink: 0,
             "& .MuiDrawer-paper": {
               width: drawerWidth,
-              boxSizing: "border-box"
-            }
+              boxSizing: "border-box",
+            },
           }}
           variant="permanent"
           anchor="left"
@@ -87,7 +85,7 @@ export default function Dashboard({ children }) {
                     style={{
                       whiteSpace: "nowrap",
                       overflow: "hidden",
-                      textOverflow: "ellipsis"
+                      textOverflow: "ellipsis",
                     }}
                   >
                     <b>{process.env.REACT_APP_APP_NAME}</b>
@@ -123,20 +121,17 @@ export default function Dashboard({ children }) {
           </List>
           <Divider />
           <List>
-            {/* TODO(Billing): Change this back when we enable billing */}
-            {/*
-              <ListItem disablePadding>
-                <ListItemButton
-                  onClick={handleNavBilling}
-                  selected={location.pathname === "/billing"}
-                >
-                  <ListItemIcon>
-                    <BillingIcon />
-                  </ListItemIcon>
-                  {!isPhone && <ListItemText primary="Billing" />}
-                </ListItemButton>
-              </ListItem>
-            */}
+            <ListItem disablePadding>
+              <ListItemButton
+                onClick={handleNavBilling}
+                selected={location.pathname === "/app/billing"}
+              >
+                <ListItemIcon>
+                  <BillingIcon />
+                </ListItemIcon>
+                {!isPhone && <ListItemText primary="Billing" />}
+              </ListItemButton>
+            </ListItem>
             <ListItem disablePadding>
               <ListItemButton onClick={handleLogout}>
                 <ListItemIcon>
