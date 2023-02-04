@@ -266,14 +266,6 @@ export default function Generator() {
             <Emoji symbol="🙏" />
           </Alert>
         )}
-        {outOfCredits && (
-          <Alert severity="error">
-            You're out of credits for the month <Emoji symbol="😢" /> Credits
-            reset on the 1st of every month. If you would like unlimited
-            credits, you can{" "}
-            <Link to="/app/billing">upgrade your plan here!</Link>
-          </Alert>
-        )}
         {result && (
           <>
             <Typography variant="h4" gutterBottom>
