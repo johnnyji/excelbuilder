@@ -1,6 +1,5 @@
 export const subscriptionPlanKey = {
-  // TODO(Billing): Remove the _XXX when we want to re-enable billing
-  STARTER: "STARTER_XXX",
+  STARTER: "STARTER",
   PREMIUM: "PREMIUM",
   PREMIUM_Y: "PREMIUM_Y"
 };

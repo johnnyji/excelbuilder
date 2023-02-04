@@ -10,11 +10,10 @@ import {
   ListItemButton,
   ListItemIcon,
   ListItemText,
-  Typography
+  Typography,
 } from "@mui/material";
 
-// TODO(Billing): Change this back when we enable billing
-// import BillingIcon from "@mui/icons-material/CreditCard";
+import BillingIcon from "@mui/icons-material/CreditCard";
 import LogoutIcon from "@mui/icons-material/Logout";
 import ExplainerIcon from "@mui/icons-material/Plagiarism";
 import GeneratorIcon from "@mui/icons-material/Superscript";
@@ -34,26 +33,25 @@ export default function Dashboard({ children }) {
   const navigate = useNavigate();
 
   const handleNavGenerator = useCallback(
-    e => {
+    (e) => {
       navigate("/app");
     },
     [navigate]
   );
 
   const handleNavExplainer = useCallback(
-    e => {
+    (e) => {
       navigate("/app/explainer");
     },
     [navigate]
   );
 
-  // TODO(Billing): Change this back when we enable billing
-  // const handleNavBilling = useCallback(
-  //   e => {
-  //     navigate("/app/billing");
-  //   },
-  //   [navigate]
-  // );
+  const handleNavBilling = useCallback(
+    (e) => {
+      navigate("/app/billing");
+    },
+    [navigate]
+  );
 
   const handleLogout = useCallback(() => {
     navigate("/");
@@ -123,20 +121,17 @@ export default function Dashboard({ children }) {
           </List>
           <Divider />
           <List>
-            {/* TODO(Billing): Change this back when we enable billing */}
-            {/*
-              <ListItem disablePadding>
-                <ListItemButton
-                  onClick={handleNavBilling}
-                  selected={location.pathname === "/billing"}
-                >
-                  <ListItemIcon>
-                    <BillingIcon />
-                  </ListItemIcon>
-                  {!isPhone && <ListItemText primary="Billing" />}
-                </ListItemButton>
-              </ListItem>
-            */}
+            <ListItem disablePadding>
+              <ListItemButton
+                onClick={handleNavBilling}
+                selected={location.pathname === "/app/billing"}
+              >
+                <ListItemIcon>
+                  <BillingIcon />
+                </ListItemIcon>
+                {!isPhone && <ListItemText primary="Billing" />}
+              </ListItemButton>
+            </ListItem>
             <ListItem disablePadding>
               <ListItemButton onClick={handleLogout}>
                 <ListItemIcon>

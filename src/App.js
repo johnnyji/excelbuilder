@@ -14,8 +14,7 @@ import Dashboard from "./components/dashboard";
 import Generator from "./components/generator";
 import Explainer from "./components/explainer";
 import Login from "./components/login";
-// TODO(Billing): Change this back when we enable billing
-// import Billing from "./components/billing";
+import Billing from "./components/billing";
 import NoMatch from "./components/nomatch";
 
 import UserContext from "./contexts/User";
@@ -51,8 +50,7 @@ export default function App() {
                 <Route path="/app" element={<Dashboard />}>
                   <Route index element={<Generator />} />
                   <Route path="explainer" element={<Explainer />} />
-                  {/* TODO(Billing): Change this back when we enable billing */}
-                  {/* <Route path="billing" element={<Billing />} /> */}
+                  <Route path="billing" element={<Billing />} />
                 </Route>
                 <Route path="*" element={<NoMatch />} />
               </Routes>
