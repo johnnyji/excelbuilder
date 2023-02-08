@@ -124,7 +124,7 @@ const config = {
       },
       {
         name: "Pro (Annual)",
-        price: "$4.99",
+        price: "$4.49",
         priceDetails: "per month (paid annual)",
         features: [
           "Unlimited formulas!",
