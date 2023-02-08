@@ -17,7 +17,7 @@ import {
   ListItem,
   ListItemText,
   ListItemIcon,
-  Typography
+  Typography,
 } from "@mui/material";
 
 import { createCheckoutSession } from "@stripe/firestore-stripe-payments";
@@ -39,27 +39,20 @@ const styles = {
   card: {
     margin: 16,
     padding: 16,
-    width: 350
-  }
+    width: 350,
+  },
 };
-
-const freeUserEmails = [
-  "excelbuilderapp@gmail.com",
-  "johnny@johnnyji.com",
-  "johnny@distru.com",
-  "jesse@distru.com"
-];
 
 // PREMIUM / PREMIUM_Y must be set as a metadata item of `id=PREMIUM(_Y)`
 // on the respective Stripe products of  in order for the following module work
 const plans = {
   STARTER: {
     title: "Starter",
-    values: ["7 formulas per month", "Basic email support"]
+    values: ["7 formulas per month", "Basic email support"],
   },
   PREMIUM: {
     title: "Pro",
-    values: ["Unlimited formulas!", "Priority email support"]
+    values: ["Unlimited formulas!", "Priority email support"],
   },
   PREMIUM_Y: {
     title: "Pro (Annual)",
@@ -68,17 +61,17 @@ const plans = {
       "Priority email support",
       <>
         <b>25% cheaper</b> than monthly!
-      </>
-    ]
-  }
+      </>,
+    ],
+  },
 };
 
 // We define this here as a dummy product because this isn't actually a product in Stripe
 const starterPlanProduct = {
   metadata: {
-    id: subscriptionPlanKey.STARTER
+    id: subscriptionPlanKey.STARTER,
   },
-  prices: [{ id: null, unit_amount: 0 }]
+  prices: [{ id: null, unit_amount: 0 }],
 };
 
 export default function Billing() {
@@ -87,7 +80,7 @@ export default function Billing() {
   const {
     isLoading: productsLoading,
     isError: productsError,
-    data: products
+    data: products,
   } = useStripeProducts();
   const [billingSessionLoading, setBillingSessionLoading] = useState(false);
   const [searchParams, setSearchParams] = useSearchParams();
@@ -102,7 +95,7 @@ export default function Billing() {
       setSearchParams(searchParams.delete("billing_redirect"));
       enqueueSnackbar("Oops, your payment did not go through.", {
         preventDuplicate: true,
-        variant: "error"
+        variant: "error",
       });
     }
   }, [
@@ -110,7 +103,7 @@ export default function Billing() {
     enqueueSnackbar,
     postBillingRedirect,
     searchParams,
-    setSearchParams
+    setSearchParams,
   ]);
 
   const handleManagePlan = useCallback(() => {
@@ -121,12 +114,12 @@ export default function Billing() {
     );
 
     stripeCustomerPortalRef({
-      returnUrl: `${window.location.origin}/app/billing`
+      returnUrl: `${window.location.origin}/app/billing`,
     })
       .then(({ data }) => {
         window.location.assign(data.url);
       })
-      .catch(_ => {
+      .catch((_) => {
         setBillingSessionLoading(false);
         enqueueSnackbar(
           `Error contacting payment processor Stripe to manage your subscription. Please try again later or contact ${process.env.REACT_APP_SUPPORT_EMAIL} for support!`,
@@ -138,20 +131,20 @@ export default function Billing() {
   }, [enqueueSnackbar, setBillingSessionLoading]);
 
   const handleSelectPlan = useCallback(
-    e => {
+    (e) => {
       setBillingSessionLoading(true);
       const priceId = e.target.getAttribute("name");
 
       createCheckoutSession(stripePayments, {
         price: priceId,
-        allow_promotion_codes: freeUserEmails.includes(user.email),
+        allow_promotion_codes: true,
         success_url: `${window.location.origin}/app?billing_redirect=SUCCESS`,
-        cancel_url: `${window.location.origin}/app/billing?billing_redirect=CANCEL`
+        cancel_url: `${window.location.origin}/app/billing?billing_redirect=CANCEL`,
       })
-        .then(session => {
+        .then((session) => {
           window.location.assign(session.url);
         })
-        .catch(_ => {
+        .catch((_) => {
           setBillingSessionLoading(false);
           enqueueSnackbar(
             `Error contacting payment processor Stripe. Please try again later or contact ${process.env.REACT_APP_SUPPORT_EMAIL} for support!`,
@@ -159,7 +152,7 @@ export default function Billing() {
           );
         });
     },
-    [enqueueSnackbar, setBillingSessionLoading, user.email]
+    [enqueueSnackbar, setBillingSessionLoading]
   );
 
   const isStarterPlan =
@@ -168,10 +161,10 @@ export default function Billing() {
   const fullProducts = [starterPlanProduct].concat(products);
 
   const currentProduct = fullProducts.find(
-    x => x.metadata.id === user.subscriptionPlanKey
+    (x) => x.metadata.id === user.subscriptionPlanKey
   );
 
-  const renderPlan = product => {
+  const renderPlan = (product) => {
     const plan = plans[product.metadata.id];
     const price = product.prices[product.prices.length - 1];
     const priceFormatted =
@@ -242,7 +235,7 @@ export default function Billing() {
     );
   };
 
-  const planList = fullProducts.map(product => {
+  const planList = fullProducts.map((product) => {
     return renderPlan(product, false);
   });
 
