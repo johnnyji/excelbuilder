@@ -10,10 +10,11 @@ import {
   ListItemButton,
   ListItemIcon,
   ListItemText,
-  Typography,
+  Typography
 } from "@mui/material";
 
 import BillingIcon from "@mui/icons-material/CreditCard";
+import HelpIcon from "@mui/icons-material/Help";
 import LogoutIcon from "@mui/icons-material/Logout";
 import ExplainerIcon from "@mui/icons-material/Plagiarism";
 import GeneratorIcon from "@mui/icons-material/Superscript";
@@ -32,22 +33,29 @@ export default function Dashboard({ children }) {
   const location = useLocation();
   const navigate = useNavigate();
 
+  const handleHelpDesk = useCallback(() => {
+    window.open(
+      "https://rich-pencil-9ae.notion.site/Excel-Formulator-85ac0eae6d5247bf9f491d9d718ebede",
+      "_blank"
+    );
+  }, []);
+
   const handleNavGenerator = useCallback(
-    (e) => {
+    e => {
       navigate("/app");
     },
     [navigate]
   );
 
   const handleNavExplainer = useCallback(
-    (e) => {
+    e => {
       navigate("/app/explainer");
     },
     [navigate]
   );
 
   const handleNavBilling = useCallback(
-    (e) => {
+    e => {
       navigate("/app/billing");
     },
     [navigate]
@@ -67,8 +75,8 @@ export default function Dashboard({ children }) {
             flexShrink: 0,
             "& .MuiDrawer-paper": {
               width: drawerWidth,
-              boxSizing: "border-box",
-            },
+              boxSizing: "border-box"
+            }
           }}
           variant="permanent"
           anchor="left"
@@ -85,7 +93,7 @@ export default function Dashboard({ children }) {
                     style={{
                       whiteSpace: "nowrap",
                       overflow: "hidden",
-                      textOverflow: "ellipsis",
+                      textOverflow: "ellipsis"
                     }}
                   >
                     <b>{process.env.REACT_APP_APP_NAME}</b>
@@ -121,6 +129,15 @@ export default function Dashboard({ children }) {
           </List>
           <Divider />
           <List>
+            <ListItem disablePadding>
+              <ListItemButton onClick={handleHelpDesk}>
+                <ListItemIcon>
+                  <HelpIcon />
+                </ListItemIcon>
+                {!isPhone && <ListItemText primary="Help Desk" />}
+              </ListItemButton>
+            </ListItem>
+
             <ListItem disablePadding>
               <ListItemButton
                 onClick={handleNavBilling}
