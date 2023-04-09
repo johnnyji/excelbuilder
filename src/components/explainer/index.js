@@ -12,8 +12,6 @@ import {
 } from "@mui/material";
 import delay from "delay";
 
-import CopyToClipboard from "react-copy-to-clipboard";
-
 import { createGeneration, getGenerationByPrompt } from "../../firebase";
 import openai from "../../openai";
 
@@ -242,11 +240,19 @@ export default function Generator() {
             <Typography variant="h4" gutterBottom>
               <b>Explanation:</b>
             </Typography>
-            <CopyToClipboard text={result}>
-              <Paper style={styles.result}>
-                <code>{result}</code>
-              </Paper>
-            </CopyToClipboard>
+            <Paper style={styles.result}>
+              <code>{result}</code>
+            </Paper>
+            <Button
+              color="primary"
+              onClick={() => {
+                navigator.clipboard.writeText(result);
+              }}
+              variant="contained"
+              style={styles.generateButton}
+            >
+              Click to Copy Result
+            </Button>
           </>
         )}
       </div>

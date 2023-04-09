@@ -14,8 +14,6 @@ import {
   Typography
 } from "@mui/material";
 
-import CopyToClipboard from "react-copy-to-clipboard";
-
 import { createGeneration, getGenerationByPrompt } from "../../firebase";
 import openai from "../../openai";
 
@@ -274,11 +272,19 @@ export default function Generator() {
             <Typography variant="subtitle1" gutterBottom>
               Copy/paste this formula into your "Formula" field:
             </Typography>
-            <CopyToClipboard text={result}>
-              <Paper style={styles.result}>
-                <code>{result}</code>
-              </Paper>
-            </CopyToClipboard>
+            <Paper style={styles.result}>
+              <code>{result}</code>
+            </Paper>
+            <Button
+              color="primary"
+              onClick={() => {
+                navigator.clipboard.writeText(result);
+              }}
+              variant="contained"
+              style={styles.generateButton}
+            >
+              Click to Copy Result
+            </Button>
           </>
         )}
       </div>
