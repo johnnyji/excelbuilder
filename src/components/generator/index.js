@@ -1,9 +1,8 @@
 import React, { useCallback, useContext, useEffect, useState } from "react";
 import { Link, useSearchParams } from "react-router-dom";
 import { Link as MUILink } from "@mui/material";
-import { useLocalStorage, useWindowSize, usePrevious } from "react-use";
+import { useLocalStorage, usePrevious } from "react-use";
 import { useSnackbar } from "notistack";
-import Confetti from "react-confetti";
 import delay from "delay";
 
 import {
@@ -12,7 +11,7 @@ import {
   ButtonGroup,
   Paper,
   TextField,
-  Typography,
+  Typography
 } from "@mui/material";
 
 import CopyToClipboard from "react-copy-to-clipboard";
@@ -26,6 +25,7 @@ import TutorialBanner from "../shared/TutorialBanner";
 import DashboardWrapper from "../ui/DashboardWrapper";
 import Emoji from "../ui/Emoji";
 
+import { ConfettiContext } from "../../contexts/Confetti";
 import { RemainingCreditsContext } from "../../contexts/RemainingCredits";
 import { UserContext } from "../../contexts/User";
 
@@ -33,11 +33,11 @@ const styles = {
   generator: {
     marginTop: "16px",
     display: "flex",
-    flexDirection: "column",
+    flexDirection: "column"
   },
   generateButton: {
     marginTop: "16px",
-    marginBottom: "16px",
+    marginBottom: "16px"
   },
   result: {
     background: "#F7F7F7",
@@ -45,12 +45,12 @@ const styles = {
     padding: "16px",
     "&:hover": {
       background: "#FFF",
-      cursor: "pointer",
-    },
-  },
+      cursor: "pointer"
+    }
+  }
 };
 
-const getSystemWording = (system) => {
+const getSystemWording = system => {
   if (system === "EXCEL") return "an Excel";
   if (system === "SHEETS") return "a Google Sheets";
   if (system === "AIRTABLE") return "an Airtable";
@@ -58,8 +58,8 @@ const getSystemWording = (system) => {
 
 export default function Generator() {
   const { enqueueSnackbar } = useSnackbar();
-  const { width: windowWidth, height: windowHeight } = useWindowSize();
-  const [isConfettiExploding, setIsConfettiExploding] = useState(false);
+  const fireConfetti = useContext(ConfettiContext);
+
   const user = useContext(UserContext);
   const [genStatus, setGenStatus] = useState("IDLE");
   const [system, setSystem] = useLocalStorage("ebBuilderSystem", "EXCEL");
@@ -77,11 +77,11 @@ export default function Generator() {
 
   useEffect(() => {
     if (postBillingRedirect === "SUCCESS") {
-      setIsConfettiExploding(true);
+      fireConfetti();
       setSearchParams(searchParams.delete("billing_redirect"));
       enqueueSnackbar("Your plan was successfully changed!", {
         preventDuplicate: true,
-        variant: "success",
+        variant: "success"
       });
     }
 
@@ -90,7 +90,7 @@ export default function Generator() {
         "Oops, something went wrong. Please double check your input!",
         {
           variant: "error",
-          preventDuplicate: true,
+          preventDuplicate: true
         }
       );
     }
@@ -102,13 +102,14 @@ export default function Generator() {
           if (existing) {
             await delay(1000);
             setResult(existing.completion.text);
+            fireConfetti();
             // TODO: If I decide to enable this again, I need to rework this
             // as the `result` here is not the same
             // createGeneration(user, prompt, result);
             updateRemainingCredits();
             enqueueSnackbar("Woohoo! Formula generated ✅", {
               variant: "success",
-              preventDuplicate: true,
+              preventDuplicate: true
             });
             setGenStatus("DONE");
             return;
@@ -123,18 +124,19 @@ export default function Generator() {
             max_tokens: 1000,
             top_p: 1,
             frequency_penalty: 0,
-            presence_penalty: 0,
+            presence_penalty: 0
           });
 
           const result = completion.data.choices[0];
 
           if (result) {
+            fireConfetti();
             setResult(result.text);
             createGeneration(user, prompt, result, system);
             updateRemainingCredits();
             enqueueSnackbar("Woohoo! Formula generated ✅", {
               variant: "success",
-              preventDuplicate: true,
+              preventDuplicate: true
             });
             setGenStatus("DONE");
           }
@@ -147,6 +149,7 @@ export default function Generator() {
     }
   }, [
     enqueueSnackbar,
+    fireConfetti,
     genStatus,
     prevGenStatus,
     postBillingRedirect,
@@ -157,7 +160,7 @@ export default function Generator() {
     setSearchParams,
     system,
     updateRemainingCredits,
-    user,
+    user
   ]);
 
   const handleGenerate = useCallback(() => {
@@ -171,14 +174,14 @@ export default function Generator() {
   }, [prompt, setGenStatus, setPromptError]);
 
   const handleSetPrompt = useCallback(
-    (e) => {
+    e => {
       setPrompt(e.target.value);
     },
     [setPrompt]
   );
 
   const handleSetSystem = useCallback(
-    (e) => {
+    e => {
       setSystem(e.target.name);
     },
     [setSystem]
@@ -194,16 +197,6 @@ export default function Generator() {
       title="Build Formula"
       subtitle={`Describe in english what you want an Excel/Sheets/Airtable formula to do and ${process.env.REACT_APP_APP_NAME} will generate you the formula! 🤯`}
     >
-      {isConfettiExploding && (
-        <Confetti
-          numberOfPieces={1000}
-          recycle={false}
-          height={windowHeight}
-          width={windowWidth}
-          style={{ zIndex: 10000 }}
-        />
-      )}
-
       <RemainingCreditsBanner />
       <TutorialBanner />
 

@@ -23,6 +23,7 @@ import TutorialBanner from "../shared/TutorialBanner";
 import DashboardWrapper from "../ui/DashboardWrapper";
 import Emoji from "../ui/Emoji";
 
+import { ConfettiContext } from "../../contexts/Confetti";
 import { RemainingCreditsContext } from "../../contexts/RemainingCredits";
 import { UserContext } from "../../contexts/User";
 
@@ -56,6 +57,7 @@ const getSystemWording = system => {
 
 export default function Generator() {
   const user = useContext(UserContext);
+  const fireConfetti = useContext(ConfettiContext);
   const { enqueueSnackbar } = useSnackbar();
   const [genStatus, setGenStatus] = useState("IDLE");
   const [system, setSystem] = useLocalStorage("ebExplainerSystem", "EXCEL");
@@ -85,6 +87,7 @@ export default function Generator() {
           const existing = await getGenerationByPrompt(user, prompt, system);
           if (existing) {
             await delay(1000);
+            fireConfetti();
             setResult(existing.completion.text);
             // TODO: If I decide to enable this again, I need to rework this
             // as the `result` here is not the same
@@ -113,6 +116,7 @@ export default function Generator() {
 
           if (result) {
             setResult(result.text);
+            fireConfetti();
             createGeneration(user, prompt, result, system);
             updateRemainingCredits();
             enqueueSnackbar("Woohoo! Explanation generated ✅", {
@@ -130,6 +134,7 @@ export default function Generator() {
     }
   }, [
     enqueueSnackbar,
+    fireConfetti,
     genStatus,
     prevGenStatus,
     setGenStatus,

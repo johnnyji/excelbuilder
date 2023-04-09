@@ -17,6 +17,7 @@ import Login from "./components/login";
 import Billing from "./components/billing";
 import NoMatch from "./components/nomatch";
 
+import ConfettiContext from "./contexts/Confetti";
 import UserContext from "./contexts/User";
 
 import "./firebase";
@@ -44,16 +45,18 @@ export default function App() {
           >
             <CssBaseline />
             <UserContext>
-              <Routes>
-                <Route path="/" element={<LandingPage />} />
-                <Route path="/signin" element={<Login />} />
-                <Route path="/app" element={<Dashboard />}>
-                  <Route index element={<Generator />} />
-                  <Route path="explainer" element={<Explainer />} />
-                  <Route path="billing" element={<Billing />} />
-                </Route>
-                <Route path="*" element={<NoMatch />} />
-              </Routes>
+              <ConfettiContext>
+                <Routes>
+                  <Route path="/" element={<LandingPage />} />
+                  <Route path="/signin" element={<Login />} />
+                  <Route path="/app" element={<Dashboard />}>
+                    <Route index element={<Generator />} />
+                    <Route path="explainer" element={<Explainer />} />
+                    <Route path="billing" element={<Billing />} />
+                  </Route>
+                  <Route path="*" element={<NoMatch />} />
+                </Routes>
+              </ConfettiContext>
             </UserContext>
           </SnackbarProvider>
         </QueryClientProvider>
