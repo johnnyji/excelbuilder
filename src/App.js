@@ -17,6 +17,9 @@ import Login from "./components/login";
 import Billing from "./components/billing";
 import NoMatch from "./components/nomatch";
 
+import PluginBillingCancel from "./components/plugin_billing_cancel";
+import PluginBillingSuccess from "./components/plugin_billing_success";
+
 import ConfettiContext from "./contexts/Confetti";
 import UserContext from "./contexts/User";
 
@@ -48,6 +51,14 @@ export default function App() {
               <ConfettiContext>
                 <Routes>
                   <Route path="/" element={<LandingPage />} />
+                  <Route
+                    path="/plugin_billing_success"
+                    element={<PluginBillingSuccess />}
+                  />
+                  <Route
+                    path="/plugin_billing_cancel"
+                    element={<PluginBillingCancel />}
+                  />
                   <Route path="/signin" element={<Login />} />
                   <Route path="/app" element={<Dashboard />}>
                     <Route index element={<Generator />} />
