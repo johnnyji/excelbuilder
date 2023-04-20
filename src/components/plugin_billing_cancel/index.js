@@ -1,4 +1,4 @@
-import { Box, Typography } from "@mui/material";
+import { Box, Button, Typography } from "@mui/material";
 import { useSearchParams } from "react-router-dom";
 
 import Emoji from "../ui/Emoji";
@@ -15,24 +15,23 @@ const styles = {
     top: 0,
     width: "100vw",
     // This will override the sidebar
-    zIndex: 10000,
+    zIndex: 10000
   },
   content: {
     alignItems: "flex-start",
     display: "flex",
     flexDirection: "column",
     maxWidth: 700,
-    justifyContent: "center",
-  },
+    justifyContent: "center"
+  }
 };
 
 export default function PluginBillingCancel() {
   const [searchParams] = useSearchParams();
   const platform = searchParams.get("platform");
-
-  let pluginTitle = "Excel Formulator plugin";
-  if (platform === "MS")
-    pluginTitle = "Excel Formulator Microsoft office plugin";
+  const redirect = searchParams.get("redirect");
+  let platformWording = "Excel";
+  if (platform === "MS") platformWording = "Excel";
 
   return (
     <div style={styles.wrapper}>
@@ -46,10 +45,21 @@ export default function PluginBillingCancel() {
           Oops... your subscription was not properly processed.
         </Typography>
         <Typography variant="subtitle1">
-          Please head back into the {pluginTitle} and try to subscribe again. If
-          this issue persists, please contact{" "}
+          Please head back into the {platformWording} and try to subscribe
+          again. If this issue persists, please contact{" "}
           {process.env.REACT_APP_SUPPORT_EMAIL} and we'll sort this out for you!
         </Typography>
+        {redirect && (
+          <Button
+            onClick={() => {
+              window.open(redirect, "_blank");
+            }}
+            variant="outlined"
+            style={{ marginTop: 16, marginBottom: 16 }}
+          >
+            Click here to open {platformWording}
+          </Button>
+        )}
       </Box>
     </div>
   );
