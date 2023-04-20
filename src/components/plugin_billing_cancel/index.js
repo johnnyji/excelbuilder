@@ -1,4 +1,4 @@
-import { Box, Button, Typography } from "@mui/material";
+import { Box, Typography } from "@mui/material";
 import { useSearchParams } from "react-router-dom";
 
 import Emoji from "../ui/Emoji";
@@ -29,7 +29,6 @@ const styles = {
 export default function PluginBillingCancel() {
   const [searchParams] = useSearchParams();
   const platform = searchParams.get("platform");
-  const redirect = searchParams.get("redirect");
   let platformWording = "Excel";
   if (platform === "MS") platformWording = "Excel";
 
@@ -49,17 +48,6 @@ export default function PluginBillingCancel() {
           again. If this issue persists, please contact{" "}
           {process.env.REACT_APP_SUPPORT_EMAIL} and we'll sort this out for you!
         </Typography>
-        {redirect && (
-          <Button
-            onClick={() => {
-              window.open(redirect, "_blank");
-            }}
-            variant="outlined"
-            style={{ marginTop: 16, marginBottom: 16 }}
-          >
-            Click here to open {platformWording}
-          </Button>
-        )}
       </Box>
     </div>
   );
