@@ -19,6 +19,8 @@ import NoMatch from "./components/nomatch";
 
 import PluginBillingCancel from "./components/plugin_billing_cancel";
 import PluginBillingSuccess from "./components/plugin_billing_success";
+import PrivacyPolicy from "./components/legal/PrivacyPolicy";
+import TermsOfService from "./components/legal/TermsOfService";
 
 import ConfettiContext from "./contexts/Confetti";
 import UserContext from "./contexts/User";
@@ -51,6 +53,11 @@ export default function App() {
               <ConfettiContext>
                 <Routes>
                   <Route path="/" element={<LandingPage />} />
+                  <Route path="/privacy_policy" element={<PrivacyPolicy />} />
+                  <Route
+                    path="/terms_of_service"
+                    element={<TermsOfService />}
+                  />
                   <Route
                     path="/plugin_billing_success"
                     element={<PluginBillingSuccess />}

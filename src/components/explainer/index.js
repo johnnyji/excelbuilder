@@ -91,7 +91,7 @@ export default function Generator() {
             // as the `result` here is not the same
             // createGeneration(user, prompt, result);
             updateRemainingCredits();
-            enqueueSnackbar("Woohoo! Formula generated ✅", {
+            enqueueSnackbar("Woohoo! Formula explained ✅", {
               variant: "success",
               preventDuplicate: true
             });

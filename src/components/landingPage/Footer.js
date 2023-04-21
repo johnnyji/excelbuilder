@@ -1,4 +1,5 @@
 import React from "react";
+import { Link } from "react-router-dom";
 
 import TikTokIcon from "../ui/icons/TikTok";
 import config from "./config";
@@ -35,8 +36,10 @@ const Footer = () => {
           </a>
         </div>
         <div className="flex items-center mt-6">
-          <p className="mt-6 text-xs lg:text-sm leading-none text-gray-900 dark:text-gray-50">
-            &copy; {new Date().getFullYear()} Excel Formulator
+          <p className="mt-6 text-xs lg:text-sm leading-none text-gray-900 dark:text-gray-400">
+            &copy; {new Date().getFullYear()} Excel Formulator |{" "}
+            {<Link to="/privacy_policy">Privacy Policy</Link>} |{" "}
+            {<Link to="/terms_of_service">Terms of Service</Link>}
           </p>
         </div>
       </div>

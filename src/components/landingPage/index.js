@@ -18,18 +18,13 @@ const ContentWrapper = ({ children }) => {
         flexDirection: "column",
         alignItems: "center",
         maxWidth: "lg",
-        margin: "0 16px",
+        margin: "0 16px"
       }}
     >
       {children}
     </Box>
   );
 };
-
-// TODO: Create arrows in Excalidraw and add them to features section
-// TODO: Add "as seen on tiktok"
-// TODO: Add emojis
-// TODO: Add custom fonts
 
 export default function LandingPage() {
   return (
@@ -40,7 +35,7 @@ export default function LandingPage() {
           display: "flex",
           flexDirection: "column",
           alignItems: "center",
-          justifyContent: "center",
+          justifyContent: "center"
         }}
       >
         <ContentWrapper>
