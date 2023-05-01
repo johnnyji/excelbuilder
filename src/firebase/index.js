@@ -138,6 +138,28 @@ const createGeneration = async (user, prompt, completion, system) => {
   }
 };
 
+const getGenerationByUid = async uid => {
+  try {
+    console.log(uid);
+    const generationQuery = query(
+      collection(db, "completions"),
+      where("uid", "==", uid),
+      limit(1)
+    );
+
+    const docs = await getDocs(generationQuery);
+    console.log(docs);
+
+    if (docs.docs.length === 1) {
+      return Promise.resolve(docs.docs[0].data());
+    } else {
+      return Promise.resolve(null);
+    }
+  } catch (err) {
+    Promise.reject(err);
+  }
+};
+
 const getGenerationByPrompt = async (user, prompt, system) => {
   try {
     const generationQuery = query(
@@ -180,6 +202,7 @@ export {
   logInWithEmailAndPassword,
   createGeneration,
   getGenerationByPrompt,
+  getGenerationByUid,
   registerWithEmailAndPassword,
   sendPasswordReset,
   stripePayments,

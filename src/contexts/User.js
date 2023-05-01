@@ -26,7 +26,7 @@ export default function User({ children }) {
     return <Navigate to="/" state={{ from: location }} replace />;
   }
 
-  if (user && !isPathAuthorized) {
+  if (user && !isPathAuthorized && !location.pathname.startsWith("/result")) {
     return <Navigate to="/app" state={{ from: location }} replace />;
   }
 

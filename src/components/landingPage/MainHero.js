@@ -5,7 +5,7 @@ import { Box, Button, Typography } from "@mui/material";
 
 import config from "./config.js";
 
-const MainHero = () => {
+const MainHero = ({ title, ctaText, showSubtitle }) => {
   const { mainHero } = config;
   const navigate = useNavigate();
   const handleSignUp = useCallback(() => {
@@ -15,15 +15,19 @@ const MainHero = () => {
   return (
     <Box className="text-center" mt={10} sx={{ maxWidth: "md" }}>
       <Box mb={2}>
-        <Typography variant="h4" gutterBottom>
-          <b>{mainHero.title}</b>
-        </Typography>
+        {title || (
+          <Typography variant="h4" gutterBottom>
+            <b>{mainHero.title}</b>
+          </Typography>
+        )}
       </Box>
-      <Box mb={2}>
-        <Typography variant="subtitle1" gutterBottom>
-          {mainHero.subtitle}
-        </Typography>
-      </Box>
+      {showSubtitle && (
+        <Box mb={2}>
+          <Typography variant="subtitle1" gutterBottom>
+            {mainHero.subtitle}
+          </Typography>
+        </Box>
+      )}
       <Box display="flex" alignItems="center" justifyContent="center">
         <Typography
           className="text-gray-500"
@@ -40,7 +44,7 @@ const MainHero = () => {
           variant="contained"
           style={{ height: 60, width: 300 }}
         >
-          <b>{mainHero.primaryAction.text}</b>
+          <b>{ctaText || mainHero.primaryAction.text}</b>
         </Button>
       </div>
     </Box>

@@ -5,6 +5,8 @@ import { useLocalStorage, usePrevious } from "react-use";
 import { useSnackbar } from "notistack";
 import delay from "delay";
 
+import { getDoc } from "firebase/firestore";
+
 import {
   Alert,
   Button,
@@ -14,11 +16,15 @@ import {
   Typography
 } from "@mui/material";
 
+import ContentCopyIcon from "@mui/icons-material/ContentCopy";
+import ShareIcon from "@mui/icons-material/IosShare";
+
 import { createGeneration, getGenerationByPrompt } from "../../firebase";
 import openai from "../../openai";
 
 import RemainingCreditsBanner from "../shared/RemainingCreditsBanner";
 import TutorialBanner from "../shared/TutorialBanner";
+import ShareDialog from "./ShareDialog";
 
 import DashboardWrapper from "../ui/DashboardWrapper";
 import Emoji from "../ui/Emoji";
@@ -62,9 +68,14 @@ export default function Generator() {
   const [genStatus, setGenStatus] = useState("IDLE");
   const [system, setSystem] = useLocalStorage("ebBuilderSystem", "EXCEL");
   const [result, setResult] = useLocalStorage("ebBuilderResult", "");
+  const [resultObject, setResultObject] = useLocalStorage(
+    "ebBuilderResultObject",
+    null
+  );
   const [prompt, setPrompt] = useLocalStorage("ebBuilderPrompt", "");
   const [promptError, setPromptError] = useState(null);
 
+  const [shareLink, setShareLink] = useState(null);
   const [searchParams, setSearchParams] = useSearchParams();
   const postBillingRedirect = searchParams.get("billing_redirect");
   const { remainingCredits, updateRemainingCredits } = useContext(
@@ -97,9 +108,11 @@ export default function Generator() {
       const processPrompt = async () => {
         try {
           const existing = await getGenerationByPrompt(user, prompt, system);
+
           if (existing) {
             await delay(1000);
-            setResult(existing.completion.text);
+            setResult(existing.completion.text.replace(/\n/g, ""));
+            setResultObject(existing);
             fireConfetti();
             // TODO: If I decide to enable this again, I need to rework this
             // as the `result` here is not the same
@@ -128,9 +141,17 @@ export default function Generator() {
           const result = completion.data.choices[0];
 
           if (result) {
+            const newDocRef = await createGeneration(
+              user,
+              prompt,
+              result,
+              system
+            );
+            const newDocSnapshot = await getDoc(newDocRef);
+            const newData = newDocSnapshot.data();
             fireConfetti();
-            setResult(result.text);
-            createGeneration(user, prompt, result, system);
+            setResult(result.text.replace(/\n/g, ""));
+            setResultObject(newData);
             updateRemainingCredits();
             enqueueSnackbar("Woohoo! Formula generated ✅", {
               variant: "success",
@@ -153,6 +174,7 @@ export default function Generator() {
     postBillingRedirect,
     prompt,
     setResult,
+    setResultObject,
     searchParams,
     setGenStatus,
     setSearchParams,
@@ -276,18 +298,52 @@ export default function Generator() {
               <code>{result}</code>
             </Paper>
             <Button
-              color="primary"
+              color="success"
               onClick={() => {
                 navigator.clipboard.writeText(result);
+                enqueueSnackbar("Result copied to clipboard", {
+                  variant: "success",
+                  preventDuplicate: true
+                });
               }}
               variant="contained"
-              style={styles.generateButton}
+              style={{ marginBottom: 16, marginTop: 16 }}
             >
-              Click to Copy Result
+              <ContentCopyIcon style={{ marginRight: 8 }} />
+              Copy Result
+            </Button>
+            <Button
+              color="success"
+              onClick={() => {
+                if (resultObject) {
+                  setShareLink(
+                    `${process.env.REACT_APP_URL_BASE}/result/${resultObject.uid}`
+                  );
+                } else {
+                  enqueueSnackbar(
+                    "Please re-generate your formula and try again",
+                    {
+                      variant: "error",
+                      preventDuplicate: true
+                    }
+                  );
+                }
+              }}
+              variant="outlined"
+              style={{ marginBottom: 32 }}
+            >
+              <ShareIcon style={{ marginRight: 8 }} /> Share Result
             </Button>
           </>
         )}
       </div>
+      <ShareDialog
+        open={shareLink !== null}
+        onClose={() => {
+          setShareLink(null);
+        }}
+        link={shareLink}
+      />
     </DashboardWrapper>
   );
 }

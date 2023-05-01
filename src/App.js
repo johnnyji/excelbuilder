@@ -9,13 +9,14 @@ import { createTheme, ThemeProvider } from "@mui/material/styles";
 
 import { SnackbarProvider } from "notistack";
 
-import LandingPage from "./components/landingPage";
-import Dashboard from "./components/dashboard";
-import Generator from "./components/generator";
-import Explainer from "./components/explainer";
-import Login from "./components/login";
 import Billing from "./components/billing";
+import Dashboard from "./components/dashboard";
+import Explainer from "./components/explainer";
+import Generator from "./components/generator";
+import LandingPage from "./components/landingPage";
+import Login from "./components/login";
 import NoMatch from "./components/nomatch";
+import Result from "./components/result";
 
 import PluginBillingCancel from "./components/plugin_billing_cancel";
 import PluginBillingSuccess from "./components/plugin_billing_success";
@@ -66,6 +67,7 @@ export default function App() {
                     path="/plugin_billing_cancel"
                     element={<PluginBillingCancel />}
                   />
+                  <Route path="/result/:id" element={<Result />} />
                   <Route path="/signin" element={<Login />} />
                   <Route path="/app" element={<Dashboard />}>
                     <Route index element={<Generator />} />

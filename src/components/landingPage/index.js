@@ -29,7 +29,7 @@ const ContentWrapper = ({ children }) => {
 export default function LandingPage() {
   return (
     <div>
-      <Header />
+      <Header showNavigation={true} />
       <Box
         sx={{
           display: "flex",
@@ -40,7 +40,7 @@ export default function LandingPage() {
       >
         <ContentWrapper>
           <MainHero />
-          <MainHeroImage />
+          <MainHeroImage showSubtitle={true} />
         </ContentWrapper>
         <LazyShow>
           <Canvas />
@@ -52,7 +52,7 @@ export default function LandingPage() {
           <Canvas />
           <Pricing />
           <Canvas />
-          <Footer />
+          <Footer showSections={true} />
         </LazyShow>
       </Box>
     </div>

@@ -13,7 +13,7 @@ import LogoIcon from "@mui/icons-material/Task";
 import config from "./config.js";
 import colors from "../../config/colors";
 
-const Menu = () => {
+const Menu = ({ showNavigation }) => {
   const navigate = useNavigate();
   const { navigation, company, callToAction } = config;
   const { name: companyName, logo } = company;
@@ -62,19 +62,21 @@ const Menu = () => {
               </div>
             </div>
             <div className="hidden md:block md:ml-10 md:pr-4 md:space-x-8">
-              {navigation.map(item => (
-                <Link
-                  spy={true}
-                  active="active"
-                  smooth={true}
-                  duration={1000}
-                  key={item.name}
-                  to={item.href}
-                  className="font-medium text-gray-500 hover:text-gray-900"
-                >
-                  {item.name}
-                </Link>
-              ))}
+              {showNavigation
+                ? navigation.map(item => (
+                    <Link
+                      spy={true}
+                      active="active"
+                      smooth={true}
+                      duration={1000}
+                      key={item.name}
+                      to={item.href}
+                      className="font-medium text-gray-500 hover:text-gray-900"
+                    >
+                      {item.name}
+                    </Link>
+                  ))
+                : null}
               <Button
                 className={`font-medium text-primary hover:text-secondary`}
                 onClick={handleSignIn}
@@ -126,19 +128,21 @@ const Menu = () => {
                 className="px-2 pt-2 pb-3 space-y-1"
                 style={{ marginTop: "-3em" }}
               >
-                {navigation.map(item => (
-                  <Link
-                    spy={true}
-                    active="active"
-                    smooth={true}
-                    duration={1000}
-                    key={item.name}
-                    to={item.href}
-                    className="block px-3 py-2 rounded-md text-base font-medium text-gray-700 hover:text-gray-900 hover:bg-gray-50"
-                  >
-                    {item.name}
-                  </Link>
-                ))}
+                {showNavigation
+                  ? navigation.map(item => (
+                      <Link
+                        spy={true}
+                        active="active"
+                        smooth={true}
+                        duration={1000}
+                        key={item.name}
+                        to={item.href}
+                        className="block px-3 py-2 rounded-md text-base font-medium text-gray-700 hover:text-gray-900 hover:bg-gray-50"
+                      >
+                        {item.name}
+                      </Link>
+                    ))
+                  : null}
               </div>
               <Button color="success" className={`block w-full text-center`}>
                 <b>{callToAction.text}</b>
