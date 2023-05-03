@@ -132,7 +132,8 @@ const createGeneration = async (user, prompt, completion, system) => {
       system,
       userUid: user.uid
     };
-    await addDoc(collection(db, "completions"), data);
+    const docRef = await addDoc(collection(db, "completions"), data);
+    return docRef;
   } catch (err) {
     console.error(err);
   }
