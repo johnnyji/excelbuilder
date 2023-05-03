@@ -73,7 +73,7 @@ export default function ResultDisplay() {
         style={{
           alignSelf: "center",
           fontFamily: "courier",
-          overflowWrap: "anywhere"
+          overflowWrap: "anywhere",
         }}
         variant="h6"
       >
@@ -106,7 +106,7 @@ export default function ResultDisplay() {
           display: "flex",
           flexDirection: "column",
           padding: 16,
-          alignItems: "center"
+          alignItems: "center",
         }}
       >
         {renderContent()}
@@ -115,10 +115,12 @@ export default function ResultDisplay() {
       <Button
         disabled={loading || Boolean(error) || !Boolean(result)}
         onClick={() => {
-          navigator.clipboard.writeText(result);
+          navigator.clipboard.writeText(
+            result.completion.text.replace(/\n/g, "")
+          );
           enqueueSnackbar("Result copied to clipboard", {
             variant: "success",
-            preventDuplicate: true
+            preventDuplicate: true,
           });
         }}
         variant="contained"
@@ -135,7 +137,7 @@ export default function ResultDisplay() {
             display: "flex",
             alignItems: "center",
             flexDirection: "column",
-            padding: 32
+            padding: 32,
           }}
         >
           <Typography variant="body2" style={{ marginBottom: 16 }}>
@@ -145,7 +147,7 @@ export default function ResultDisplay() {
             style={{
               alignSelf: "flex-start",
               fontSize: "2em",
-              lineHeight: ".5em"
+              lineHeight: ".5em",
             }}
           >
             “
@@ -157,7 +159,7 @@ export default function ResultDisplay() {
             style={{
               alignSelf: "flex-end",
               fontSize: "2em",
-              lineHeight: ".5em"
+              lineHeight: ".5em",
             }}
           >
             ”
