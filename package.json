@@ -9,6 +9,7 @@
     "@heroicons/react": "^2.0.13",
     "@mui/icons-material": "^5.10.16",
     "@mui/material": "^5.10.16",
+    "@sentry/react": "^7.50.0",
     "@stripe/firestore-stripe-payments": "^0.0.6",
     "@testing-library/jest-dom": "^5.16.5",
     "@testing-library/react": "^13.4.0",

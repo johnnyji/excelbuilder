@@ -1,5 +1,6 @@
 import React, { useCallback, useContext, useEffect, useState } from "react";
-import { Link, useSearchParams } from "react-router-dom";
+import * as Sentry from "@sentry/react";
+import { Link, useLocation, useSearchParams } from "react-router-dom";
 import { Link as MUILink } from "@mui/material";
 import { useLocalStorage, usePrevious } from "react-use";
 import { useSnackbar } from "notistack";
@@ -13,7 +14,7 @@ import {
   ButtonGroup,
   Paper,
   TextField,
-  Typography,
+  Typography
 } from "@mui/material";
 
 import ContentCopyIcon from "@mui/icons-material/ContentCopy";
@@ -37,11 +38,11 @@ const styles = {
   generator: {
     marginTop: "16px",
     display: "flex",
-    flexDirection: "column",
+    flexDirection: "column"
   },
   generateButton: {
     marginTop: "16px",
-    marginBottom: "16px",
+    marginBottom: "16px"
   },
   result: {
     background: "#F7F7F7",
@@ -49,12 +50,12 @@ const styles = {
     padding: "16px",
     "&:hover": {
       background: "#FFF",
-      cursor: "pointer",
-    },
-  },
+      cursor: "pointer"
+    }
+  }
 };
 
-const getSystemWording = (system) => {
+const getSystemWording = system => {
   if (system === "EXCEL") return "an Excel";
   if (system === "SHEETS") return "a Google Sheets";
   if (system === "AIRTABLE") return "an Airtable";
@@ -62,6 +63,7 @@ const getSystemWording = (system) => {
 
 export default function Generator() {
   const { enqueueSnackbar } = useSnackbar();
+  const location = useLocation();
   const fireConfetti = useContext(ConfettiContext);
 
   const user = useContext(UserContext);
@@ -90,7 +92,7 @@ export default function Generator() {
       setSearchParams(searchParams.delete("billing_redirect"));
       enqueueSnackbar("Your plan was successfully changed!", {
         preventDuplicate: true,
-        variant: "success",
+        variant: "success"
       });
     }
 
@@ -99,7 +101,7 @@ export default function Generator() {
         "Oops, something went wrong. Please double check your input or just simply try again!",
         {
           variant: "error",
-          preventDuplicate: true,
+          preventDuplicate: true
         }
       );
     }
@@ -120,7 +122,7 @@ export default function Generator() {
             updateRemainingCredits();
             enqueueSnackbar("Woohoo! Formula generated ✅", {
               variant: "success",
-              preventDuplicate: true,
+              preventDuplicate: true
             });
             setGenStatus("DONE");
             return;
@@ -135,7 +137,7 @@ export default function Generator() {
             max_tokens: 1000,
             top_p: 1,
             frequency_penalty: 0,
-            presence_penalty: 0,
+            presence_penalty: 0
           });
 
           const result = completion.data.choices[0];
@@ -155,11 +157,16 @@ export default function Generator() {
             updateRemainingCredits();
             enqueueSnackbar("Woohoo! Formula generated ✅", {
               variant: "success",
-              preventDuplicate: true,
+              preventDuplicate: true
             });
             setGenStatus("DONE");
           }
         } catch (err) {
+          Sentry.captureException(err, {
+            page: location.pathname,
+            prompt,
+            user: user
+          });
           setGenStatus("ERROR");
         }
       };
@@ -170,6 +177,7 @@ export default function Generator() {
     enqueueSnackbar,
     fireConfetti,
     genStatus,
+    location.pathname,
     prevGenStatus,
     postBillingRedirect,
     prompt,
@@ -180,7 +188,7 @@ export default function Generator() {
     setSearchParams,
     system,
     updateRemainingCredits,
-    user,
+    user
   ]);
 
   const handleGenerate = useCallback(() => {
@@ -194,14 +202,14 @@ export default function Generator() {
   }, [prompt, setGenStatus, setPromptError]);
 
   const handleSetPrompt = useCallback(
-    (e) => {
+    e => {
       setPrompt(e.target.value);
     },
     [setPrompt]
   );
 
   const handleSetSystem = useCallback(
-    (e) => {
+    e => {
       setSystem(e.target.name);
     },
     [setSystem]
@@ -303,7 +311,7 @@ export default function Generator() {
                 navigator.clipboard.writeText(result);
                 enqueueSnackbar("Result copied to clipboard", {
                   variant: "success",
-                  preventDuplicate: true,
+                  preventDuplicate: true
                 });
               }}
               variant="contained"
@@ -324,7 +332,7 @@ export default function Generator() {
                     "Please re-generate your formula and try again",
                     {
                       variant: "error",
-                      preventDuplicate: true,
+                      preventDuplicate: true
                     }
                   );
                 }

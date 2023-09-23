@@ -110,16 +110,18 @@ export default function Billing() {
     setBillingSessionLoading(true);
     const stripeCustomerPortalRef = httpsCallable(
       functions,
-      "ext-firestore-stripe-payments-createPortalLink"
+      "ext-firestore-stripe-payments-new-createPortalLink"
     );
 
     stripeCustomerPortalRef({
+      locale: "auto",
       returnUrl: `${window.location.origin}/app/billing`,
     })
       .then(({ data }) => {
         window.location.assign(data.url);
       })
-      .catch((_) => {
+      .catch((error) => {
+        console.log(error);
         setBillingSessionLoading(false);
         enqueueSnackbar(
           `Error contacting payment processor Stripe to manage your subscription. Please try again later or contact ${process.env.REACT_APP_SUPPORT_EMAIL} for support!`,

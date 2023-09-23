@@ -1,5 +1,6 @@
 import React, { useCallback, useContext, useEffect, useState } from "react";
-import { Link } from "react-router-dom";
+import * as Sentry from "@sentry/react";
+import { Link, useLocation } from "react-router-dom";
 import { useLocalStorage, usePrevious } from "react-use";
 import { useSnackbar } from "notistack";
 import {
@@ -8,7 +9,7 @@ import {
   ButtonGroup,
   Paper,
   TextField,
-  Typography,
+  Typography
 } from "@mui/material";
 import delay from "delay";
 
@@ -29,23 +30,23 @@ const styles = {
   generator: {
     marginTop: "16px",
     display: "flex",
-    flexDirection: "column",
+    flexDirection: "column"
   },
   generateButton: {
     marginTop: "16px",
-    marginBottom: "16px",
+    marginBottom: "16px"
   },
   result: {
     background: "#F7F7F7",
     padding: "16px",
     "&:hover": {
       background: "#FFF",
-      cursor: "pointer",
-    },
-  },
+      cursor: "pointer"
+    }
+  }
 };
 
-const getSystemWording = (system) => {
+const getSystemWording = system => {
   if (system === "EXCEL") return "Excel formula";
   if (system === "SHEETS") return "Google Sheets formula";
   if (system === "AIRTABLE") return "Airtable formula";
@@ -55,6 +56,7 @@ const getSystemWording = (system) => {
 
 export default function Generator() {
   const user = useContext(UserContext);
+  const location = useLocation();
   const fireConfetti = useContext(ConfettiContext);
   const { enqueueSnackbar } = useSnackbar();
   const [genStatus, setGenStatus] = useState("IDLE");
@@ -74,7 +76,7 @@ export default function Generator() {
         "Oops, something went wrong. Please double check your input or just simply try again!",
         {
           variant: "error",
-          preventDuplicate: true,
+          preventDuplicate: true
         }
       );
     }
@@ -93,7 +95,7 @@ export default function Generator() {
             updateRemainingCredits();
             enqueueSnackbar("Woohoo! Formula explained ✅", {
               variant: "success",
-              preventDuplicate: true,
+              preventDuplicate: true
             });
             setGenStatus("DONE");
             return;
@@ -107,7 +109,7 @@ export default function Generator() {
             max_tokens: 1000,
             top_p: 1,
             frequency_penalty: 0,
-            presence_penalty: 0,
+            presence_penalty: 0
           });
 
           const result = completion.data.choices[0];
@@ -119,11 +121,16 @@ export default function Generator() {
             updateRemainingCredits();
             enqueueSnackbar("Woohoo! Explanation generated ✅", {
               variant: "success",
-              preventDuplicate: true,
+              preventDuplicate: true
             });
             setGenStatus("DONE");
           }
-        } catch (_) {
+        } catch (err) {
+          Sentry.captureException(err, {
+            page: location.pathname,
+            prompt,
+            user: user
+          });
           setGenStatus("ERROR");
         }
       };
@@ -140,7 +147,7 @@ export default function Generator() {
     prompt,
     updateRemainingCredits,
     user,
-    system,
+    system
   ]);
 
   const handleGenerate = useCallback(() => {
@@ -152,14 +159,14 @@ export default function Generator() {
   }, [prompt, setGenStatus, setPromptError]);
 
   const handleSetPrompt = useCallback(
-    (e) => {
+    e => {
       setPrompt(e.target.value);
     },
     [setPrompt]
   );
 
   const handleSetSystem = useCallback(
-    (e) => {
+    e => {
       setSystem(e.target.name);
     },
     [setSystem]
