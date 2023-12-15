@@ -18,6 +18,7 @@ import FullPageSpinner from "../components/ui/FullPageSpinner";
 const initialRetriggerId = uuidv4();
 
 export const RemainingCreditsContext = React.createContext();
+const CREDITS_PER_MONTH = 5;
 
 export default function RemainingCredits({ children }) {
   const user = useContext(UserContext);
@@ -39,7 +40,7 @@ export default function RemainingCredits({ children }) {
         "You're out of credits for the month. Please upgrade your plan to have unlimited credits!",
         {
           preventDuplicate: true,
-          variant: "error"
+          variant: "error",
         }
       );
     }
@@ -47,7 +48,7 @@ export default function RemainingCredits({ children }) {
     enqueueSnackbar,
     prevRemainingCredits,
     remainingCredits,
-    user.subscriptionPlanKey
+    user.subscriptionPlanKey,
   ]);
 
   useEffect(() => {
@@ -77,13 +78,13 @@ export default function RemainingCredits({ children }) {
       );
 
       getDocs(creditsUsedQuery)
-        .then(resp => {
-          const remaining = 7 - resp.docs.length;
+        .then((resp) => {
+          const remaining = CREDITS_PER_MONTH - resp.docs.length;
           setLoading(false);
           setRemainingCredits(remaining < 0 ? 0 : remaining);
           setLoaded(true);
         })
-        .catch(error => {
+        .catch((error) => {
           console.error(error);
           setLoading(false);
           setError(
@@ -100,7 +101,7 @@ export default function RemainingCredits({ children }) {
     setLoading,
     setError,
     user.uid,
-    user.subscriptionPlanKey
+    user.subscriptionPlanKey,
   ]);
 
   const updateRemainingCredits = useCallback(() => {

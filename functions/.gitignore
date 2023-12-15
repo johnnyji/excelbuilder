@@ -1,0 +1,4 @@
+node_modules/
+
+.env.excelbuilder
+.env.excelbuilder-dev

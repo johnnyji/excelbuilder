@@ -12,9 +12,10 @@ import {
   Typography
 } from "@mui/material";
 import delay from "delay";
+import { httpsCallable } from "firebase/functions";
+import { functions } from "../../firebase";
 
 import { createGeneration, getGenerationByPrompt } from "../../firebase";
-import openai from "../../openai";
 
 import RemainingCreditsBanner from "../shared/RemainingCreditsBanner";
 import TutorialBanner from "../shared/TutorialBanner";
@@ -100,19 +101,12 @@ export default function Generator() {
             setGenStatus("DONE");
             return;
           }
-          const completion = await openai.createCompletion({
-            model: "text-davinci-003",
-            prompt: `Explain to me what this ${getSystemWording(
-              system
-            )} is doing in plain english:\n\n${prompt}`,
-            temperature: 0,
-            max_tokens: 1000,
-            top_p: 1,
-            frequency_penalty: 0,
-            presence_penalty: 0
-          });
 
-          const result = completion.data.choices[0];
+          const call = httpsCallable(functions, "explain");
+          const { data: result } = await call({
+            prompt,
+            system
+          });
 
           if (result) {
             setResult(result.text);
@@ -140,6 +134,7 @@ export default function Generator() {
   }, [
     enqueueSnackbar,
     fireConfetti,
+    location.pathname,
     genStatus,
     prevGenStatus,
     setGenStatus,
