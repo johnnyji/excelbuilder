@@ -21,7 +21,6 @@ exports.getFirebaseConfig = functions.https.onRequest(
     {
     // This must be defined everytime, can't be in a variable
       cors: [
-        "http://localhost:3000",
         "https://excelformulator.com",
         "https://excelbuilder.firebaseapp.com",
       ],
@@ -103,7 +102,6 @@ exports.generate = functions.https.onRequest(
     {
     // This must be defined everytime, can't be in a variable
       cors: [
-        "http://localhost:3000",
         "https://excelformulator.com",
         "https://excelbuilder.firebaseapp.com",
       ],
