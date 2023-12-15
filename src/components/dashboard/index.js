@@ -22,9 +22,8 @@ import LogoIcon from "@mui/icons-material/Task";
 
 import RemainingCreditsContext from "../../contexts/RemainingCredits";
 
-import { logout } from "../../firebase";
-
 import colors from "../../config/colors";
+import { logout } from "../../firebase";
 
 const isPhone = isMobile().phone;
 const drawerWidth = isPhone ? 56 : 240;
@@ -76,88 +75,92 @@ export default function Dashboard({ children }) {
             "& .MuiDrawer-paper": {
               width: drawerWidth,
               boxSizing: "border-box"
-            }
+            },
+            display: "flex",
+            flexDirection: "column"
           }}
           variant="permanent"
           anchor="left"
         >
-          <Box mb={2} mt={2}>
-            <ListItem>
-              <ListItemIcon>
-                <LogoIcon sx={{ color: colors.brandPrimary }} />
-              </ListItemIcon>
-              <ListItemText
-                primary={
-                  <Typography
-                    variant="subtitle1"
-                    style={{
-                      whiteSpace: "nowrap",
-                      overflow: "hidden",
-                      textOverflow: "ellipsis"
-                    }}
-                  >
-                    <b>{process.env.REACT_APP_APP_NAME}</b>
-                  </Typography>
-                }
-              />
-            </ListItem>
-          </Box>
-          <Divider />
-          <List>
-            <ListItem disablePadding>
-              <ListItemButton
-                onClick={handleNavGenerator}
-                selected={location.pathname === "/"}
-              >
+          <div style={{ flex: "1 1 auto" }}>
+            <Box mb={2} mt={2}>
+              <ListItem>
                 <ListItemIcon>
-                  <GeneratorIcon />
+                  <LogoIcon sx={{ color: colors.brandPrimary }} />
                 </ListItemIcon>
-                {!isPhone && <ListItemText primary="Builder" />}
-              </ListItemButton>
-            </ListItem>
-            <ListItem disablePadding>
-              <ListItemButton
-                onClick={handleNavExplainer}
-                selected={location.pathname === "/explainer"}
-              >
-                <ListItemIcon>
-                  <ExplainerIcon />
-                </ListItemIcon>
-                {!isPhone && <ListItemText primary="Explainer" />}
-              </ListItemButton>
-            </ListItem>
-          </List>
-          <Divider />
-          <List>
-            <ListItem disablePadding>
-              <ListItemButton onClick={handleHelpDesk}>
-                <ListItemIcon>
-                  <HelpIcon />
-                </ListItemIcon>
-                {!isPhone && <ListItemText primary="Help Desk" />}
-              </ListItemButton>
-            </ListItem>
+                <ListItemText
+                  primary={
+                    <Typography
+                      variant="subtitle1"
+                      style={{
+                        whiteSpace: "nowrap",
+                        overflow: "hidden",
+                        textOverflow: "ellipsis"
+                      }}
+                    >
+                      <b>{process.env.REACT_APP_APP_NAME}</b>
+                    </Typography>
+                  }
+                />
+              </ListItem>
+            </Box>
+            <Divider />
+            <List>
+              <ListItem disablePadding>
+                <ListItemButton
+                  onClick={handleNavGenerator}
+                  selected={location.pathname === "/"}
+                >
+                  <ListItemIcon>
+                    <GeneratorIcon />
+                  </ListItemIcon>
+                  {!isPhone && <ListItemText primary="Builder" />}
+                </ListItemButton>
+              </ListItem>
+              <ListItem disablePadding>
+                <ListItemButton
+                  onClick={handleNavExplainer}
+                  selected={location.pathname === "/explainer"}
+                >
+                  <ListItemIcon>
+                    <ExplainerIcon />
+                  </ListItemIcon>
+                  {!isPhone && <ListItemText primary="Explainer" />}
+                </ListItemButton>
+              </ListItem>
+            </List>
+            <Divider />
+            <List>
+              <ListItem disablePadding>
+                <ListItemButton onClick={handleHelpDesk}>
+                  <ListItemIcon>
+                    <HelpIcon />
+                  </ListItemIcon>
+                  {!isPhone && <ListItemText primary="Help Desk" />}
+                </ListItemButton>
+              </ListItem>
 
-            <ListItem disablePadding>
-              <ListItemButton
-                onClick={handleNavBilling}
-                selected={location.pathname === "/app/billing"}
-              >
-                <ListItemIcon>
-                  <BillingIcon />
-                </ListItemIcon>
-                {!isPhone && <ListItemText primary="Billing" />}
-              </ListItemButton>
-            </ListItem>
-            <ListItem disablePadding>
-              <ListItemButton onClick={handleLogout}>
-                <ListItemIcon>
-                  <LogoutIcon />
-                </ListItemIcon>
-                {!isPhone && <ListItemText primary="Logout" />}
-              </ListItemButton>
-            </ListItem>
-          </List>
+              <ListItem disablePadding>
+                <ListItemButton
+                  onClick={handleNavBilling}
+                  selected={location.pathname === "/app/billing"}
+                >
+                  <ListItemIcon>
+                    <BillingIcon />
+                  </ListItemIcon>
+                  {!isPhone && <ListItemText primary="Billing" />}
+                </ListItemButton>
+              </ListItem>
+              <ListItem disablePadding>
+                <ListItemButton onClick={handleLogout}>
+                  <ListItemIcon>
+                    <LogoutIcon />
+                  </ListItemIcon>
+                  {!isPhone && <ListItemText primary="Logout" />}
+                </ListItemButton>
+              </ListItem>
+            </List>
+          </div>
         </Drawer>
         <Box component="main" sx={{ flexGrow: 1, p: 3 }}>
           <Outlet />
