@@ -29,13 +29,19 @@ const performCompletion = (openai, question) => {
   });
 };
 
+const allowedOrigins = [
+  "http://localhost:3000",
+  "https://excelformulator.com",
+  "https://excelbuilder.firebaseapp.com",
+];
+
 exports.getFirebaseConfig = functions.https.onRequest(
     {
-    // This must be defined everytime, can't be in a variable
-      cors: [
-        "https://excelformulator.com",
-        "https://excelbuilder.firebaseapp.com",
-      ],
+    // // This must be defined everytime, can't be in a variable
+    //   cors: [
+    //     "https://excelformulator.com",
+    //     "https://excelbuilder.firebaseapp.com",
+    //   ],
       secrets: [
         fbAPIKey,
         fbAuthDomain,
@@ -46,7 +52,21 @@ exports.getFirebaseConfig = functions.https.onRequest(
         fbMeasurementId,
       ],
     },
-    (_req, res) => {
+    (req, res) => {
+      const origin = req.headers.origin;
+
+      // Allow only specified origins
+      if (allowedOrigins.includes(origin)) {
+        res.set("Access-Control-Allow-Origin", origin);
+        res.set("Access-Control-Allow-Methods", "GET, POST, OPTIONS");
+        res.set("Access-Control-Allow-Headers", "Content-Type, Authorization");
+      }
+
+      // Handle preflight request
+      if (req.method === "OPTIONS") {
+        return res.status(204).send("");
+      }
+
       const config = {
         apiKey: fbAPIKey.value(),
         authDomain: fbAuthDomain.value(),
@@ -66,15 +86,29 @@ exports.getFirebaseConfig = functions.https.onRequest(
 
 exports.explain = functions.https.onRequest(
     {
-    // This must be defined everytime, can't be in a variable
-      cors: [
-        "http://localhost:3000",
-        "https://excelformulator.com",
-        "https://excelbuilder.firebaseapp.com",
-      ],
+    // // This must be defined everytime, can't be in a variable
+    // cors: [
+    //   "http://localhost:3000",
+    //   "https://excelformulator.com",
+    //   "https://excelbuilder.firebaseapp.com",
+    // ],
       secrets: [openAIKey],
     },
     (req, res) => {
+      const origin = req.headers.origin;
+
+      // Allow only specified origins
+      if (allowedOrigins.includes(origin)) {
+        res.set("Access-Control-Allow-Origin", origin);
+        res.set("Access-Control-Allow-Methods", "GET, POST, OPTIONS");
+        res.set("Access-Control-Allow-Headers", "Content-Type, Authorization");
+      }
+
+      // Handle preflight request
+      if (req.method === "OPTIONS") {
+        return res.status(204).send("");
+      }
+
       const openai = new OpenAI({
         apiKey: openAIKey.value(),
       });
@@ -112,15 +146,29 @@ exports.explain = functions.https.onRequest(
 
 exports.generate = functions.https.onRequest(
     {
-    // This must be defined everytime, can't be in a variable
-      cors: [
-        "http://localhost:3000",
-        "https://excelformulator.com",
-        "https://excelbuilder.firebaseapp.com",
-      ],
+    // // This must be defined everytime, can't be in a variable
+    // cors: [
+    //   "http://localhost:3000",
+    //   "https://excelformulator.com",
+    //   "https://excelbuilder.firebaseapp.com",
+    // ],
       secrets: [openAIKey],
     },
     (req, res) => {
+      const origin = req.headers.origin;
+
+      // Allow only specified origins
+      if (allowedOrigins.includes(origin)) {
+        res.set("Access-Control-Allow-Origin", origin);
+        res.set("Access-Control-Allow-Methods", "GET, POST, OPTIONS");
+        res.set("Access-Control-Allow-Headers", "Content-Type, Authorization");
+      }
+
+      // Handle preflight request
+      if (req.method === "OPTIONS") {
+        return res.status(204).send("");
+      }
+
       const openai = new OpenAI({
         apiKey: openAIKey.value(),
       });
